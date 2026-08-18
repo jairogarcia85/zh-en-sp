@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>三语 · ZH-EN-SP</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <span class="logo">三</span>
+    <div>
+      <h1>ZH · EN · SP</h1>
+      <p class="tagline" data-i18n="app.tagline"></p>
+    </div>
+  </div>
+  <div class="topright">
+    <label class="baselang">
+      <span data-i18n="ui.baseLang"></span>
+      <select id="baseLang">
+        <option value="es">Español</option>
+        <option value="en">English</option>
+        <option value="zh">中文</option>
+      </select>
+    </label>
+    <div class="stat"><b id="xpVal">0</b><span data-i18n="ui.xp"></span></div>
+    <div class="stat"><b id="streakVal">0</b><span data-i18n="ui.streak"></span></div>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-view="learn"><span data-i18n="tab.learn"></span></button>
+  <button class="tab" data-view="review"><span data-i18n="tab.review"></span> <em id="dueBadge"></em></button>
+  <button class="tab" data-view="quiz"><span data-i18n="tab.quiz"></span></button>
+  <button class="tab" data-view="res"><span data-i18n="tab.res"></span></button>
+  <button class="tab" data-view="prog"><span data-i18n="tab.prog"></span></button>
+</nav>
+
+<div class="levelbar">
+  <span class="lbl" data-i18n="ui.level"></span>
+  <div id="levelPicker" class="levelpicker"></div>
+  <p id="levelGoal" class="goal"></p>
+</div>
+
+<main>
+  <!-- APRENDER / LEARN / 学习 -->
+  <section id="view-learn" class="view active">
+    <div class="deckhead">
+      <span id="deckPos" class="pos"></span>
+      <div class="deckopts">
+        <label><input type="checkbox" id="optPinyin" checked> <span data-i18n="learn.pinyin"></span></label>
+        <label><input type="checkbox" id="optAudio" checked> <span data-i18n="learn.autoAudio"></span></label>
+      </div>
+    </div>
+    <div id="card" class="card"></div>
+    <div id="cardActions" class="actions"></div>
+  </section>
+
+  <!-- REPASAR / REVIEW / 复习 -->
+  <section id="view-review" class="view"><div id="reviewBody"></div></section>
+
+  <!-- QUIZ / 测验 -->
+  <section id="view-quiz" class="view"><div id="quizBody"></div></section>
+
+  <!-- RECURSOS / RESOURCES / 资源 -->
+  <section id="view-res" class="view"><div id="resBody"></div></section>
+
+  <!-- PROGRESO / PROGRESS / 进度 -->
+  <section id="view-prog" class="view"><div id="progBody"></div></section>
+</main>
+
+<footer>
+  <span data-i18n="foot.note"></span>
+  <span id="savedAt"></span>
+</footer>
+
+<script src="js/i18n.js"></script>
+<script src="js/data-a.js"></script>
+<script src="js/data-b.js"></script>
+<script src="js/data-resources.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

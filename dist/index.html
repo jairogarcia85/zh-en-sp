@@ -1,0 +1,1647 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>三语 · ZH-EN-SP</title>
+<style>
+:root{
+  --bg:#f6f5f2; --panel:#ffffff; --ink:#1b1b1f; --muted:#6b6b76;
+  --line:#e3e1dc; --accent:#b4302a; --accent2:#0f6b5c; --gold:#c8952a;
+  --ok:#1f7a4d; --bad:#b13a2e; --shadow:0 1px 2px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.05);
+  --r:14px;
+}
+/* Tema oscuro. Tres estados: el visor puede no marcar nada (sigue al sistema),
+   marcar data-theme="dark" o marcar data-theme="light". Los tres deben resolver. */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+  --bg:#141416; --panel:#1d1d20; --ink:#ecebe7; --muted:#9a9aa4;
+  --line:#2e2e33; --accent:#e2564e; --accent2:#3fb39c; --gold:#e0ad4a;
+  --ok:#4bbb84; --bad:#e2695c; --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141416; --panel:#1d1d20; --ink:#ecebe7; --muted:#9a9aa4;
+  --line:#2e2e33; --accent:#e2564e; --accent2:#3fb39c; --gold:#e0ad4a;
+  --ok:#4bbb84; --bad:#e2695c; --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,"Helvetica Neue",sans-serif}
+h1,h2,h3{margin:0;font-weight:650;letter-spacing:-.01em}
+button{font:inherit;cursor:pointer}
+a{color:var(--accent2)}
+
+/* ---------- header ---------- */
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:14px 20px;background:var(--panel);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;border-radius:11px;background:var(--accent);color:#fff;
+  display:grid;place-items:center;font-size:24px;font-weight:600}
+.top h1{font-size:17px}
+.tagline{margin:1px 0 0;font-size:12px;color:var(--muted)}
+.topright{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.baselang{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+.baselang select{font:inherit;font-size:13px;padding:4px 6px;border-radius:8px;
+  border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.stat{text-align:center;min-width:48px}
+.stat b{display:block;font-size:18px;color:var(--gold)}
+.stat span{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:4px;padding:10px 16px 0;overflow-x:auto;background:var(--panel)}
+.tab{border:0;background:transparent;color:var(--muted);padding:9px 14px;border-radius:10px 10px 0 0;
+  white-space:nowrap;font-size:14px;border-bottom:2px solid transparent}
+.tab:hover{color:var(--ink)}
+.tab.active{color:var(--ink);font-weight:600;border-bottom-color:var(--accent);background:var(--bg)}
+.tab em{font-style:normal;background:var(--accent);color:#fff;border-radius:20px;
+  padding:1px 7px;font-size:11px;margin-left:4px}
+.tab em:empty{display:none}
+
+/* ---------- level bar ---------- */
+.levelbar{padding:14px 20px 10px;border-bottom:1px solid var(--line);background:var(--bg)}
+.levelbar .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.levelpicker{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.lvbtn{border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  border-radius:10px;padding:7px 12px;font-size:13px;display:flex;gap:7px;align-items:center}
+.lvbtn b{color:var(--accent)}
+.lvbtn.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.lvbtn.locked{opacity:.45;cursor:not-allowed}
+.lvbtn .cefr{font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:0 4px}
+.goal{margin:9px 0 0;font-size:13px;color:var(--muted);max-width:70ch}
+
+/* ---------- layout ---------- */
+main{padding:20px;max-width:820px;margin:0 auto}
+.view{display:none}
+.view.active{display:block}
+
+/* ---------- card ---------- */
+.deckhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap}
+.pos{font-size:12px;color:var(--muted)}
+.deckopts{display:flex;gap:14px;font-size:12px;color:var(--muted)}
+.deckopts label{display:flex;gap:5px;align-items:center;cursor:pointer}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  padding:26px 24px;box-shadow:var(--shadow);min-height:220px}
+.hanzi{font-size:52px;line-height:1.25;letter-spacing:.04em;margin:0}
+.pinyin{font-size:19px;color:var(--accent2);margin:4px 0 0}
+.tagrow{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.tag{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);
+  border:1px solid var(--line);border-radius:20px;padding:2px 9px}
+.spk{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;
+  padding:4px 10px;font-size:13px}
+.spk:hover{border-color:var(--accent2)}
+.tri{display:grid;gap:8px;margin:18px 0 0;border-top:1px solid var(--line);padding-top:16px}
+.tri .row{display:flex;gap:11px;align-items:baseline}
+.tri .flag{font-size:10px;font-weight:700;letter-spacing:.09em;color:var(--muted);min-width:26px}
+.tri .val{font-size:19px}
+.mnemo{margin-top:18px;background:linear-gradient(0deg,rgba(200,149,42,.09),rgba(200,149,42,.09)),var(--panel);
+  border:1px solid rgba(200,149,42,.35);border-radius:12px;padding:13px 15px}
+.mnemo h4{margin:0 0 5px;font-size:10px;text-transform:uppercase;letter-spacing:.11em;color:var(--gold)}
+.mnemo p{margin:0;font-size:14px}
+.example{margin-top:14px;border-left:3px solid var(--line);padding:2px 0 2px 13px}
+.example .ez{font-size:18px}
+.example .ep{font-size:13px;color:var(--accent2)}
+.example .ee,.example .es{font-size:13px;color:var(--muted)}
+.hidden{display:none}
+.actions{display:flex;gap:9px;margin-top:16px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  border-radius:11px;padding:11px 18px;font-size:14px;box-shadow:var(--shadow)}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.ok{border-color:var(--ok);color:var(--ok)}
+.btn.mid{border-color:var(--gold);color:var(--gold)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn.ghost{background:transparent;box-shadow:none}
+.btn:disabled{opacity:.45;cursor:default}
+
+/* ---------- generic panel ---------- */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  padding:20px;box-shadow:var(--shadow);margin-bottom:16px}
+.panel h2{font-size:16px;margin-bottom:4px}
+.panel h3{font-size:14px;margin:18px 0 8px}
+.sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+.empty{text-align:center;color:var(--muted);padding:36px 12px}
+.empty .big{font-size:40px;display:block;margin-bottom:8px}
+
+/* ---------- quiz ---------- */
+.qprog{height:6px;background:var(--line);border-radius:20px;overflow:hidden;margin-bottom:18px}
+.qprog i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.qstem{font-size:14px;color:var(--muted);margin:0 0 6px}
+.qbig{font-size:34px;margin:0 0 6px}
+.qmid{font-size:22px;margin:0 0 6px}
+.opts{display:grid;gap:9px;margin-top:18px}
+.opt{text-align:left;border:1px solid var(--line);background:var(--bg);color:var(--ink);
+  border-radius:11px;padding:13px 15px;font-size:16px}
+.opt:hover{border-color:var(--accent2)}
+.opt.right{border-color:var(--ok);background:rgba(31,122,77,.12);font-weight:600}
+.opt.wrong{border-color:var(--bad);background:rgba(177,58,46,.12)}
+.opt:disabled{cursor:default}
+.feedback{margin-top:16px;border-top:1px solid var(--line);padding-top:14px;font-size:14px}
+.score{font-size:46px;font-weight:700;color:var(--accent)}
+.scorewrap{text-align:center;padding:14px 0}
+.pill{display:inline-block;font-size:12px;border-radius:20px;padding:3px 11px;border:1px solid var(--line)}
+.pill.pass{border-color:var(--ok);color:var(--ok)}
+.pill.fail{border-color:var(--bad);color:var(--bad)}
+
+/* ---------- resources ---------- */
+.res{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;background:var(--bg)}
+.res .rh{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:5px}
+.res .kind{font-size:10px;text-transform:uppercase;letter-spacing:.09em;
+  border-radius:5px;padding:2px 7px;border:1px solid var(--line);color:var(--muted)}
+.res .kind.video{color:var(--accent);border-color:var(--accent)}
+.res .kind.lectura{color:var(--accent2);border-color:var(--accent2)}
+.res .kind.tema{color:var(--gold);border-color:var(--gold)}
+.res .rt{font-weight:600;font-size:15px}
+.res .lang{font-size:11px;color:var(--muted)}
+.res p{margin:0;font-size:13.5px;color:var(--muted)}
+.res a{font-size:13px;display:inline-block;margin-top:7px}
+
+/* ---------- progress ---------- */
+.bars{display:grid;gap:11px}
+.barrow{display:grid;grid-template-columns:110px 1fr 74px;gap:11px;align-items:center;font-size:13px}
+.bar{height:9px;background:var(--line);border-radius:20px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent2),var(--gold))}
+.barnum{text-align:right;color:var(--muted);font-size:12px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:11px;margin-bottom:18px}
+.kpi{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:13px;text-align:center}
+.kpi b{display:block;font-size:25px;color:var(--accent)}
+.kpi span{font-size:11px;color:var(--muted)}
+table.hist{width:100%;border-collapse:collapse;font-size:13px}
+table.hist th,table.hist td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line)}
+table.hist th{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+
+footer{max-width:820px;margin:0 auto;padding:14px 20px 40px;display:flex;
+  justify-content:space-between;font-size:11px;color:var(--muted);gap:10px;flex-wrap:wrap}
+
+@media(max-width:560px){
+  main{padding:14px}
+  .hanzi{font-size:42px}
+  .barrow{grid-template-columns:82px 1fr 60px}
+  .top{padding:12px 14px}
+}
+
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <span class="logo">三</span>
+    <div>
+      <h1>ZH · EN · SP</h1>
+      <p class="tagline" data-i18n="app.tagline"></p>
+    </div>
+  </div>
+  <div class="topright">
+    <label class="baselang">
+      <span data-i18n="ui.baseLang"></span>
+      <select id="baseLang">
+        <option value="es">Español</option>
+        <option value="en">English</option>
+        <option value="zh">中文</option>
+      </select>
+    </label>
+    <div class="stat"><b id="xpVal">0</b><span data-i18n="ui.xp"></span></div>
+    <div class="stat"><b id="streakVal">0</b><span data-i18n="ui.streak"></span></div>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-view="learn"><span data-i18n="tab.learn"></span></button>
+  <button class="tab" data-view="review"><span data-i18n="tab.review"></span> <em id="dueBadge"></em></button>
+  <button class="tab" data-view="quiz"><span data-i18n="tab.quiz"></span></button>
+  <button class="tab" data-view="res"><span data-i18n="tab.res"></span></button>
+  <button class="tab" data-view="prog"><span data-i18n="tab.prog"></span></button>
+</nav>
+
+<div class="levelbar">
+  <span class="lbl" data-i18n="ui.level"></span>
+  <div id="levelPicker" class="levelpicker"></div>
+  <p id="levelGoal" class="goal"></p>
+</div>
+
+<main>
+  <!-- APRENDER / LEARN / 学习 -->
+  <section id="view-learn" class="view active">
+    <div class="deckhead">
+      <span id="deckPos" class="pos"></span>
+      <div class="deckopts">
+        <label><input type="checkbox" id="optPinyin" checked> <span data-i18n="learn.pinyin"></span></label>
+        <label><input type="checkbox" id="optAudio" checked> <span data-i18n="learn.autoAudio"></span></label>
+      </div>
+    </div>
+    <div id="card" class="card"></div>
+    <div id="cardActions" class="actions"></div>
+  </section>
+
+  <!-- REPASAR / REVIEW / 复习 -->
+  <section id="view-review" class="view"><div id="reviewBody"></div></section>
+
+  <!-- QUIZ / 测验 -->
+  <section id="view-quiz" class="view"><div id="quizBody"></div></section>
+
+  <!-- RECURSOS / RESOURCES / 资源 -->
+  <section id="view-res" class="view"><div id="resBody"></div></section>
+
+  <!-- PROGRESO / PROGRESS / 进度 -->
+  <section id="view-prog" class="view"><div id="progBody"></div></section>
+</main>
+
+<footer>
+  <span data-i18n="foot.note"></span>
+  <span id="savedAt"></span>
+</footer>
+
+<script>
+/* ============================================================
+   i18n · toda la interfaz en español / inglés / 中文
+   Uso:  t("quiz.start")            → cadena
+         t("learn.pos",{i:1,n:20})  → con variables {llave}
+   ============================================================ */
+window.I18N = {
+
+  /* ---------- nombres de idioma ---------- */
+  lang: {
+    es: { zh:"chino",   en:"inglés",  es:"español"  },
+    en: { zh:"Chinese", en:"English", es:"Spanish"  },
+    zh: { zh:"中文",     en:"英语",     es:"西班牙语"  }
+  },
+
+  /* ---------- etiquetas temáticas de las tarjetas ---------- */
+  tags: {
+    en: { acciones:"actions", adjetivos:"adjectives", cadena:"supply chain", comercial:"commercial",
+      comercio:"trade", comida:"food", "comunicación":"communication", conectores:"connectors",
+      corporativo:"corporate", "cortesía":"courtesy", dinero:"money", documentos:"documents",
+      finanzas:"finance", "gestión":"management", "gramática":"grammar", identidad:"identity",
+      legal:"legal", modales:"modals", movimiento:"movement", "negociación":"negotiation",
+      "números":"numbers", "opinión":"opinion", "organización":"organization", preguntas:"questions",
+      pronombres:"pronouns", reuniones:"meetings", saludos:"greetings", social:"social",
+      tiempo:"time", trabajo:"work", vida:"daily life" },
+    zh: { acciones:"动作", adjetivos:"形容词", cadena:"供应链", comercial:"商务",
+      comercio:"贸易", comida:"饮食", "comunicación":"沟通", conectores:"连词",
+      corporativo:"公司治理", "cortesía":"礼貌用语", dinero:"金钱", documentos:"文书",
+      finanzas:"财务", "gestión":"管理", "gramática":"语法", identidad:"身份",
+      legal:"法务", modales:"能愿动词", movimiento:"移动", "negociación":"谈判",
+      "números":"数字", "opinión":"观点", "organización":"组织", preguntas:"疑问",
+      pronombres:"代词", reuniones:"会议", saludos:"问候", social:"社交",
+      tiempo:"时间", trabajo:"工作", vida:"日常" }
+  },
+
+  /* ---------- tipos de recurso ---------- */
+  restype: {
+    en: { app:"app", video:"video", lectura:"reading", tema:"topic" },
+    zh: { app:"应用", video:"视频", lectura:"阅读", tema:"专题" }
+  },
+
+  /* ---------- interfaz ---------- */
+  ui: {
+    es: {
+      "app.tagline":"Chino → Inglés → Español · con mnemotecnia",
+      "ui.baseLang":"Idioma base", "ui.xp":"XP", "ui.streak":"racha",
+      "ui.level":"Nivel", "ui.mnemo":"🧠 Mnemotecnia",
+      "ui.lockedHint":"Aprueba el quiz del nivel anterior con 80% para desbloquearlo",
+      "tab.learn":"📚 Aprender", "tab.review":"🔁 Repasar", "tab.quiz":"🎯 Quiz",
+      "tab.res":"📖 Recursos", "tab.prog":"📊 Progreso",
+
+      "learn.pos":"Tarjeta {i} de {n} · caja {b}/{m}",
+      "learn.pinyin":"pinyin", "learn.autoAudio":"audio auto",
+      "learn.front":"¿Qué significa?", "learn.show":"Mostrar respuesta", "learn.skip":"Saltar →",
+      "learn.g0":"😖 No la sé", "learn.g1":"🤔 Casi", "learn.g2":"😎 La sé",
+
+      "rev.pending":"Pendientes hoy: <b>{n}</b> · nivel {l}",
+      "rev.show":"Mostrar respuesta", "rev.listen":"🔊 Escuchar",
+      "rev.doneTitle":"Nada pendiente por hoy.",
+      "rev.doneBody":"Has visto {n} tarjetas. El sistema te las regresa justo antes de que las olvides (1, 2, 4, 8, 16 y 35 días).",
+      "rev.newTitle":"Aún no hay repasos.",
+      "rev.newBody":"Estudia tarjetas en <b>Aprender</b> y aparecerán aquí en su momento.",
+
+      "quiz.title":"Quiz · {code} {name}",
+      "quiz.intro":"{n} preguntas mezcladas de traducción y pinyin. Necesitas <b>{p}%</b> para desbloquear el siguiente nivel.",
+      "quiz.last":"Último intento: <b>{p}%</b> ({d})",
+      "quiz.start":"Empezar quiz", "quiz.qnum":"Pregunta {i}/{n}",
+      "quiz.translate":"Traduce", "quiz.pinyinQ":"¿Cuál es el pinyin correcto?",
+      "quiz.correct":"✅ <b>Correcto.</b>", "quiz.wrong":"❌ <b>Era:</b> ",
+      "quiz.next":"Siguiente →", "quiz.results":"{r} de {n} correctas",
+      "quiz.pass":"✅ Aprobado", "quiz.fail":"Aún no — repasa y vuelve",
+      "quiz.unlocked":"🔓 Nivel <b>{code} {name}</b> disponible.",
+      "quiz.toReview":"Para repasar", "quiz.again":"Repetir quiz", "quiz.close":"Volver",
+
+      "res.title":"Recursos · {code} {name}",
+      "res.sub":"Material externo alineado a este nivel. Regla práctica: <b>una</b> fuente de escucha y <b>una</b> de lectura por semana, no cinco.",
+      "res.open":"Abrir ↗", "res.howTitle":"Cómo estudiar este nivel",
+      "res.howSub":"Ciclo de 25 minutos que sí funciona:",
+      "res.step1":"<b>5 min</b> — Repasar (lo que el sistema te marque como pendiente).",
+      "res.step2":"<b>10 min</b> — Aprender 5 tarjetas nuevas leyendo la mnemotecnia <b>en voz alta</b>.",
+      "res.step3":"<b>5 min</b> — Un recurso externo de arriba (escucha o lectura).",
+      "res.step4":"<b>5 min</b> — Quiz. Si sacas 80% dos veces seguidas, sube de nivel.",
+
+      "prog.title":"Tu progreso",
+      "prog.seen":"tarjetas vistas", "prog.mastered":"dominadas", "prog.total":"total del curso",
+      "prog.due":"pendientes hoy", "prog.xp":"XP", "prog.streak":"días de racha",
+      "prog.byLevel":"Dominio por nivel", "prog.history":"Historial de quizzes",
+      "prog.thDate":"Fecha", "prog.thLevel":"Nivel", "prog.thResult":"Resultado",
+      "prog.backup":"Respaldo",
+      "prog.backupSub":"El progreso vive en este navegador. Exporta un archivo si cambias de equipo.",
+      "prog.export":"⬇︎ Exportar progreso", "prog.import":"⬆︎ Importar", "prog.reset":"Borrar todo",
+      "prog.exportFail":"No se pudo guardar el archivo.", "prog.imported":"Progreso importado.", "prog.badFile":"Ese archivo no es un respaldo válido.",
+      "prog.confirmReset":"Esto borra XP, racha, niveles desbloqueados y memoria de tarjetas. ¿Seguro?",
+
+      "foot.note":"Tu progreso se guarda solo, en este navegador.",
+      "foot.saved":"Guardado {t}", "foot.saveFail":"⚠︎ no se pudo guardar"
+    },
+
+    en: {
+      "app.tagline":"Chinese → English → Spanish · with mnemonics",
+      "ui.baseLang":"Base language", "ui.xp":"XP", "ui.streak":"streak",
+      "ui.level":"Level", "ui.mnemo":"🧠 Mnemonic",
+      "ui.lockedHint":"Score 80% on the previous level's quiz to unlock this one",
+      "tab.learn":"📚 Learn", "tab.review":"🔁 Review", "tab.quiz":"🎯 Quiz",
+      "tab.res":"📖 Resources", "tab.prog":"📊 Progress",
+
+      "learn.pos":"Card {i} of {n} · box {b}/{m}",
+      "learn.pinyin":"pinyin", "learn.autoAudio":"auto audio",
+      "learn.front":"What does it mean?", "learn.show":"Show answer", "learn.skip":"Skip →",
+      "learn.g0":"😖 No idea", "learn.g1":"🤔 Almost", "learn.g2":"😎 Got it",
+
+      "rev.pending":"Due today: <b>{n}</b> · level {l}",
+      "rev.show":"Show answer", "rev.listen":"🔊 Listen",
+      "rev.doneTitle":"Nothing due today.",
+      "rev.doneBody":"You've seen {n} cards. They come back right before you'd forget them (1, 2, 4, 8, 16 and 35 days).",
+      "rev.newTitle":"No reviews yet.",
+      "rev.newBody":"Study cards in <b>Learn</b> and they'll show up here when they're due.",
+
+      "quiz.title":"Quiz · {code} {name}",
+      "quiz.intro":"{n} mixed translation and pinyin questions. You need <b>{p}%</b> to unlock the next level.",
+      "quiz.last":"Last attempt: <b>{p}%</b> ({d})",
+      "quiz.start":"Start quiz", "quiz.qnum":"Question {i}/{n}",
+      "quiz.translate":"Translate", "quiz.pinyinQ":"Which pinyin is correct?",
+      "quiz.correct":"✅ <b>Correct.</b>", "quiz.wrong":"❌ <b>It was:</b> ",
+      "quiz.next":"Next →", "quiz.results":"{r} of {n} correct",
+      "quiz.pass":"✅ Passed", "quiz.fail":"Not yet — review and come back",
+      "quiz.unlocked":"🔓 Level <b>{code} {name}</b> unlocked.",
+      "quiz.toReview":"Worth reviewing", "quiz.again":"Retake quiz", "quiz.close":"Back",
+
+      "res.title":"Resources · {code} {name}",
+      "res.sub":"External material matched to this level. Rule of thumb: <b>one</b> listening source and <b>one</b> reading source per week, not five.",
+      "res.open":"Open ↗", "res.howTitle":"How to study this level",
+      "res.howSub":"A 25-minute cycle that actually works:",
+      "res.step1":"<b>5 min</b> — Review whatever the system marks as due.",
+      "res.step2":"<b>10 min</b> — Learn 5 new cards, reading the mnemonic <b>out loud</b>.",
+      "res.step3":"<b>5 min</b> — One external resource above (listening or reading).",
+      "res.step4":"<b>5 min</b> — Quiz. Two 80% scores in a row and you move up.",
+
+      "prog.title":"Your progress",
+      "prog.seen":"cards seen", "prog.mastered":"mastered", "prog.total":"course total",
+      "prog.due":"due today", "prog.xp":"XP", "prog.streak":"day streak",
+      "prog.byLevel":"Mastery by level", "prog.history":"Quiz history",
+      "prog.thDate":"Date", "prog.thLevel":"Level", "prog.thResult":"Result",
+      "prog.backup":"Backup",
+      "prog.backupSub":"Progress lives in this browser. Export a file if you switch machines.",
+      "prog.export":"⬇︎ Export progress", "prog.import":"⬆︎ Import", "prog.reset":"Erase everything",
+      "prog.exportFail":"Could not save the file.", "prog.imported":"Progress imported.", "prog.badFile":"That file isn't a valid backup.",
+      "prog.confirmReset":"This erases XP, streak, unlocked levels and card memory. Are you sure?",
+
+      "foot.note":"Your progress saves itself, in this browser.",
+      "foot.saved":"Saved {t}", "foot.saveFail":"⚠︎ could not save"
+    },
+
+    zh: {
+      "app.tagline":"中文 → 英语 → 西班牙语 · 助记法学习",
+      "ui.baseLang":"母语 / 基准语言", "ui.xp":"经验值", "ui.streak":"连续天数",
+      "ui.level":"级别", "ui.mnemo":"🧠 助记法",
+      "ui.lockedHint":"上一级测验达到 80% 才能解锁本级",
+      "tab.learn":"📚 学习", "tab.review":"🔁 复习", "tab.quiz":"🎯 测验",
+      "tab.res":"📖 资源", "tab.prog":"📊 进度",
+
+      "learn.pos":"第 {i} / {n} 张 · 记忆盒 {b}/{m}",
+      "learn.pinyin":"拼音", "learn.autoAudio":"自动发音",
+      "learn.front":"这是什么意思？", "learn.show":"显示答案", "learn.skip":"跳过 →",
+      "learn.g0":"😖 不会", "learn.g1":"🤔 差不多", "learn.g2":"😎 会了",
+
+      "rev.pending":"今日待复习：<b>{n}</b> · 第 {l} 级",
+      "rev.show":"显示答案", "rev.listen":"🔊 朗读",
+      "rev.doneTitle":"今天没有待复习的内容。",
+      "rev.doneBody":"你已学过 {n} 张卡片。系统会在你快要遗忘时再次推送（1、2、4、8、16、35 天）。",
+      "rev.newTitle":"还没有复习内容。",
+      "rev.newBody":"先到 <b>学习</b> 页学几张卡片，到期后会出现在这里。",
+
+      "quiz.title":"测验 · {code} {name}",
+      "quiz.intro":"{n} 道翻译与拼音混合题。达到 <b>{p}%</b> 即可解锁下一级。",
+      "quiz.last":"上次成绩：<b>{p}%</b>（{d}）",
+      "quiz.start":"开始测验", "quiz.qnum":"第 {i}/{n} 题",
+      "quiz.translate":"翻译", "quiz.pinyinQ":"哪个拼音是正确的？",
+      "quiz.correct":"✅ <b>正确。</b>", "quiz.wrong":"❌ <b>正确答案：</b>",
+      "quiz.next":"下一题 →", "quiz.results":"{n} 题中答对 {r} 题",
+      "quiz.pass":"✅ 通过", "quiz.fail":"还没通过——复习后再来",
+      "quiz.unlocked":"🔓 已解锁 <b>{code} {name}</b>。",
+      "quiz.toReview":"需要复习", "quiz.again":"再测一次", "quiz.close":"返回",
+
+      "res.title":"学习资源 · {code} {name}",
+      "res.sub":"与本级配套的外部材料。实用原则：每周<b>一个</b>听力来源、<b>一个</b>阅读来源，不要贪多。",
+      "res.open":"打开 ↗", "res.howTitle":"本级怎么学",
+      "res.howSub":"真正有效的 25 分钟循环：",
+      "res.step1":"<b>5 分钟</b> — 复习系统标记为到期的卡片。",
+      "res.step2":"<b>10 分钟</b> — 学 5 张新卡片，<b>朗读</b>助记法。",
+      "res.step3":"<b>5 分钟</b> — 上面的一个外部资源（听或读）。",
+      "res.step4":"<b>5 分钟</b> — 测验。连续两次达到 80% 就升级。",
+
+      "prog.title":"你的进度",
+      "prog.seen":"已学卡片", "prog.mastered":"已掌握", "prog.total":"课程总数",
+      "prog.due":"今日待复习", "prog.xp":"经验值", "prog.streak":"连续天数",
+      "prog.byLevel":"各级掌握度", "prog.history":"测验记录",
+      "prog.thDate":"日期", "prog.thLevel":"级别", "prog.thResult":"成绩",
+      "prog.backup":"备份",
+      "prog.backupSub":"进度保存在本浏览器。换设备前请导出文件。",
+      "prog.export":"⬇︎ 导出进度", "prog.import":"⬆︎ 导入", "prog.reset":"清除全部",
+      "prog.exportFail":"文件保存失败。", "prog.imported":"进度已导入。", "prog.badFile":"该文件不是有效的备份。",
+      "prog.confirmReset":"这将清除经验值、连续天数、已解锁级别和卡片记忆。确定吗？",
+
+      "foot.note":"进度会自动保存在本浏览器中。",
+      "foot.saved":"已保存 {t}", "foot.saveFail":"⚠︎ 保存失败"
+    }
+  }
+};
+
+</script>
+<script>
+/* ============================================================
+   NIVELES 1-3  ·  Fundamentos → Vida diaria → Conversación
+   Formato de cada tarjeta:
+     id  · identificador único (nunca cambiarlo: la memoria SRS depende de él)
+     zh  · caracteres chinos
+     py  · pinyin con tonos
+     en  · inglés
+     es  · español
+     mn  · MNEMOTECNIA (el puente sonido/forma → significado)
+     ex  · ejemplo en los tres idiomas
+     tag · tema
+   ============================================================ */
+window.LEVELS_A = [
+{
+  id: 1,
+  code: "N1",
+  name: { es: "Fundamentos", en: "Foundations", zh: "基础" },
+  cefr: "A1",
+  goal: {
+    es: "Saludar, presentarte y hacer preguntas básicas en los tres idiomas.",
+    en: "Greet, introduce yourself and ask basic questions in all three languages.",
+    zh: "打招呼、自我介绍、提出基本问题。"
+  },
+  items: [
+    { id:"l1-01", zh:"你好", py:"nǐ hǎo", en:"hello", es:"hola", tag:"saludos",
+      mn:"好 = 女 (mujer) + 子 (hijo): una madre con su hijo = algo BUENO. Y «hǎo» suena a «how» → «HOW are you? = 你好». Puente ES↔EN: hola / hello, las dos empiezan con H+vocal.",
+      ex:{ zh:"你好，我叫Jairo。", py:"Nǐ hǎo, wǒ jiào Jairo.", en:"Hello, my name is Jairo.", es:"Hola, me llamo Jairo." } },
+    { id:"l1-02", zh:"谢谢", py:"xièxie", en:"thank you", es:"gracias", tag:"cortesía",
+      mn:"«xiè-xie» suena a «shieh-shieh» → imagina que SHE (ella) te da las gracias dos veces. Dos sílabas = dos «gracias». En español «gracias» y en inglés «thanks» comparten la idea de gracia/agradecimiento.",
+      ex:{ zh:"谢谢你的帮助。", py:"Xièxie nǐ de bāngzhù.", en:"Thanks for your help.", es:"Gracias por tu ayuda." } },
+    { id:"l1-03", zh:"对不起", py:"duìbuqǐ", en:"sorry / excuse me", es:"perdón / disculpa", tag:"cortesía",
+      mn:"对 = «correcto»; 不起 = «no logro». Literal: «no logro estar a tu altura» → PERDÓN. Suena «duei-bu-chi»: piensa «DUELE, pero CHI-quito el error».",
+      ex:{ zh:"对不起，我迟到了。", py:"Duìbuqǐ, wǒ chídào le.", en:"Sorry, I'm late.", es:"Perdón, llegué tarde." } },
+    { id:"l1-04", zh:"请", py:"qǐng", en:"please", es:"por favor", tag:"cortesía",
+      mn:"请 lleva el radical 讠 (palabra) + 青 (verde/joven): «palabra verde» = luz verde para pedir → POR FAVOR. Suena «ching» → «CHING, ábreme la puerta, por favor».",
+      ex:{ zh:"请坐。", py:"Qǐng zuò.", en:"Please sit down.", es:"Siéntate, por favor." } },
+    { id:"l1-05", zh:"是", py:"shì", en:"to be / yes", es:"ser / sí", tag:"gramática",
+      mn:"«shì» suena a «she» → «SHE IS» → SER. Ojo: 是 solo une sustantivos (我是老师), nunca adjetivos. En español pasa igual con «ser + sustantivo».",
+      ex:{ zh:"我是墨西哥人。", py:"Wǒ shì Mòxīgē rén.", en:"I am Mexican.", es:"Soy mexicano." } },
+    { id:"l1-06", zh:"不", py:"bù", en:"not / no", es:"no", tag:"gramática",
+      mn:"不 parece un pájaro con las alas cerradas que NO puede volar. «bù» ≈ «bu» de «BUUU» del público cuando algo NO gusta.",
+      ex:{ zh:"我不喝咖啡。", py:"Wǒ bù hē kāfēi.", en:"I don't drink coffee.", es:"No tomo café." } },
+    { id:"l1-07", zh:"我", py:"wǒ", en:"I / me", es:"yo", tag:"pronombres",
+      mn:"«wǒ» suena a «wo» de «WOW, YO». El carácter lleva 戈 (lanza) a la derecha: YO defiendo lo mío con la lanza.",
+      ex:{ zh:"我很好。", py:"Wǒ hěn hǎo.", en:"I'm fine.", es:"Estoy bien." } },
+    { id:"l1-08", zh:"你", py:"nǐ", en:"you", es:"tú", tag:"pronombres",
+      mn:"你 empieza con 亻 (persona): la persona que tienes enfrente = TÚ. «nǐ» ≈ «ni» de «NI tú NI yo».",
+      ex:{ zh:"你叫什么名字？", py:"Nǐ jiào shénme míngzi?", en:"What's your name?", es:"¿Cómo te llamas?" } },
+    { id:"l1-09", zh:"他 / 她", py:"tā", en:"he / she", es:"él / ella", tag:"pronombres",
+      mn:"¡Regalo del chino! Los dos se dicen igual: «tā». Solo cambia el radical escrito: 亻(hombre) vs 女 (mujer). Truco: «TA» = «TAmbién esa persona». En inglés y español sí debes distinguir he/she, él/ella: ahí está la dificultad, no en el chino.",
+      ex:{ zh:"她是我的同事。", py:"Tā shì wǒ de tóngshì.", en:"She is my colleague.", es:"Ella es mi colega." } },
+    { id:"l1-10", zh:"我们", py:"wǒmen", en:"we / us", es:"nosotros", tag:"pronombres",
+      mn:"们 = plural de personas. 我 (yo) + 们 (los demás) = NOSOTROS. Regla de oro: 我们/你们/他们 = yo/tú/él + «men» (los hombres del grupo).",
+      ex:{ zh:"我们一起去。", py:"Wǒmen yìqǐ qù.", en:"Let's go together.", es:"Vamos juntos." } },
+    { id:"l1-11", zh:"一 二 三", py:"yī èr sān", en:"one two three", es:"uno dos tres", tag:"números",
+      mn:"¡Se DIBUJAN! Una raya = 1, dos rayas = 2, tres rayas = 3. El chino es el único de los tres idiomas donde el número se ve. «yī-èr-sān» ≈ «i-ar-san».",
+      ex:{ zh:"我要三个。", py:"Wǒ yào sān ge.", en:"I want three.", es:"Quiero tres." } },
+    { id:"l1-12", zh:"名字", py:"míngzi", en:"name", es:"nombre", tag:"identidad",
+      mn:"«míng» → «name» en inglés y «nombre» en español comparten la M-N. Piensa: «MI NG-ombre». 名 = 夕 (atardecer) + 口 (boca): de noche no te ven, tienes que decir tu NOMBRE.",
+      ex:{ zh:"我的名字很长。", py:"Wǒ de míngzi hěn cháng.", en:"My name is long.", es:"Mi nombre es largo." } },
+    { id:"l1-13", zh:"什么", py:"shénme", en:"what", es:"qué", tag:"preguntas",
+      mn:"«shén-me» ≈ «shen-ma» → «¿SHE-N-ME qué?». Ancla: en inglés WHAT y en español QUÉ son cortas; en chino son dos sílabas que van SIEMPRE donde iría la respuesta: 你要什么？ (Tú quieres QUÉ).",
+      ex:{ zh:"这是什么？", py:"Zhè shì shénme?", en:"What is this?", es:"¿Qué es esto?" } },
+    { id:"l1-14", zh:"哪里", py:"nǎlǐ", en:"where", es:"dónde", tag:"preguntas",
+      mn:"«nǎ-lǐ» ≈ «na-li». Truco visual: 里 significa «dentro/lugar» → «¿en qué LUGAR?» = DÓNDE. Recuerda «na-LI» → «¿en qué Lugar?».",
+      ex:{ zh:"你在哪里？", py:"Nǐ zài nǎlǐ?", en:"Where are you?", es:"¿Dónde estás?" } },
+    { id:"l1-15", zh:"谁", py:"shéi", en:"who", es:"quién", tag:"preguntas",
+      mn:"«shéi» suena casi igual que el inglés «SAY» → «¿quién lo dijo? = who SAID it?». Ese puente sonido-inglés es el más rápido para este.",
+      ex:{ zh:"谁是负责人？", py:"Shéi shì fùzérén?", en:"Who is in charge?", es:"¿Quién es el responsable?" } },
+    { id:"l1-16", zh:"好", py:"hǎo", en:"good / OK", es:"bueno / vale", tag:"adjetivos",
+      mn:"Mismo carácter que en 你好. Madre + hijo = BUENO. Úsalo solo para decir «ok»: 好！ = «¡Va!» / «Deal!».",
+      ex:{ zh:"好，没问题。", py:"Hǎo, méi wèntí.", en:"OK, no problem.", es:"Va, sin problema." } },
+    { id:"l1-17", zh:"很", py:"hěn", en:"very", es:"muy", tag:"gramática",
+      mn:"REGLA CLAVE: en chino el adjetivo no lleva verbo, lleva 很. 我很好 = «yo MUY bien» (no «yo soy muy bien»). Truco: «hěn» ≈ «hen» → imagina una gallina MUY gorda.",
+      ex:{ zh:"这个很重要。", py:"Zhège hěn zhòngyào.", en:"This is very important.", es:"Esto es muy importante." } },
+    { id:"l1-18", zh:"也", py:"yě", en:"also / too", es:"también", tag:"gramática",
+      mn:"«yě» ≈ «ye» → «YE-también». Posición fija: va ANTES del verbo (我也去 = yo también voy), igual que «also» en inglés y al revés que «también» en español, que suele ir al final.",
+      ex:{ zh:"我也是。", py:"Wǒ yě shì.", en:"Me too.", es:"Yo también." } },
+    { id:"l1-19", zh:"吗", py:"ma", en:"(yes/no question marker)", es:"(marca de pregunta)", tag:"gramática",
+      mn:"El chino no cambia el orden para preguntar: solo le pega 吗 al final. Es literalmente el signo «?» hablado. 你好吗？ = «¿Estás bien?». Truco: 吗 lleva 口 (boca) = la boca que pregunta.",
+      ex:{ zh:"你是老板吗？", py:"Nǐ shì lǎobǎn ma?", en:"Are you the boss?", es:"¿Eres el jefe?" } },
+    { id:"l1-20", zh:"再见", py:"zàijiàn", en:"goodbye", es:"adiós / hasta luego", tag:"saludos",
+      mn:"Literal: 再 (otra vez) + 见 (ver) = «hasta VERnos otra vez». Es idéntico al español «hasta luego» y al inglés «see you again». Los tres idiomas dicen lo mismo: no es «adiós», es «nos vemos».",
+      ex:{ zh:"再见，明天见！", py:"Zàijiàn, míngtiān jiàn!", en:"Bye, see you tomorrow!", es:"Adiós, ¡nos vemos mañana!" } }
+  ]
+},
+{
+  id: 2,
+  code: "N2",
+  name: { es: "Vida diaria", en: "Daily life", zh: "日常生活" },
+  cefr: "A2",
+  goal: {
+    es: "Sobrevivir un día completo: comer, moverte, comprar y hablar de tiempo.",
+    en: "Survive a full day: eat, get around, shop and talk about time.",
+    zh: "应对日常：吃饭、出行、购物、谈时间。"
+  },
+  items: [
+    { id:"l2-01", zh:"吃", py:"chī", en:"to eat", es:"comer", tag:"comida",
+      mn:"吃 lleva 口 (boca) a la izquierda: todo lo que se hace con la boca lleva 口. «chī» ≈ «chi» → «CHI-le, a comer».",
+      ex:{ zh:"我们去吃饭吧。", py:"Wǒmen qù chīfàn ba.", en:"Let's go eat.", es:"Vamos a comer." } },
+    { id:"l2-02", zh:"喝", py:"hē", en:"to drink", es:"beber / tomar", tag:"comida",
+      mn:"También lleva 口 (boca). «hē» suena al aire que sacas al beber algo caliente: «heee». Par a memorizar junto: 吃/喝 = comer/beber = eat/drink.",
+      ex:{ zh:"我想喝水。", py:"Wǒ xiǎng hē shuǐ.", en:"I want to drink water.", es:"Quiero tomar agua." } },
+    { id:"l2-03", zh:"水", py:"shuǐ", en:"water", es:"agua", tag:"comida",
+      mn:"水 es un río dibujado: la línea central es la corriente y los lados las salpicaduras. Cuando veas el radical 氵 en cualquier carácter, hay agua o líquido.",
+      ex:{ zh:"一杯水，谢谢。", py:"Yì bēi shuǐ, xièxie.", en:"A glass of water, please.", es:"Un vaso de agua, por favor." } },
+    { id:"l2-04", zh:"饭", py:"fàn", en:"meal / cooked rice", es:"comida / arroz", tag:"comida",
+      mn:"«fàn» ≈ «fan». Imagina un FAN (ventilador) enfriando el arroz caliente. Nota cultural: 饭 = arroz PERO también «comida» en general, igual que en México «el pan de cada día» significa el sustento.",
+      ex:{ zh:"晚饭吃什么？", py:"Wǎnfàn chī shénme?", en:"What's for dinner?", es:"¿Qué hay de cenar?" } },
+    { id:"l2-05", zh:"家", py:"jiā", en:"home / family", es:"casa / familia", tag:"vida",
+      mn:"家 = 宀 (techo) + 豕 (cerdo). En la China antigua, casa era el techo bajo el que tenías tu cerdo. Igual que en español CASA y FAMILIA se mezclan («toda la casa vino»), en chino es la misma palabra.",
+      ex:{ zh:"我在家工作。", py:"Wǒ zài jiā gōngzuò.", en:"I work from home.", es:"Trabajo desde casa." } },
+    { id:"l2-06", zh:"人", py:"rén", en:"person", es:"persona / gente", tag:"vida",
+      mn:"人 son dos piernas caminando. Es el carácter más reutilizado: 中国人 = persona de China = chino. Fórmula: [país] + 人 = gentilicio, igual que en español «méxico + ano».",
+      ex:{ zh:"这里人很多。", py:"Zhèlǐ rén hěn duō.", en:"There are many people here.", es:"Aquí hay mucha gente." } },
+    { id:"l2-07", zh:"朋友", py:"péngyou", en:"friend", es:"amigo", tag:"vida",
+      mn:"朋 son dos lunas 月月 lado a lado = dos que se acompañan. «péng-you» ≈ «peng-YOU» → «PENG, YOU are my friend».",
+      ex:{ zh:"他是我的老朋友。", py:"Tā shì wǒ de lǎo péngyou.", en:"He is an old friend of mine.", es:"Él es un viejo amigo mío." } },
+    { id:"l2-08", zh:"时间", py:"shíjiān", en:"time", es:"tiempo / hora", tag:"tiempo",
+      mn:"间 significa «espacio entre». Tiempo = el espacio entre dos momentos. «shí-jiān»: piensa «SHE-JEAN llega tarde, no tiene TIEMPO».",
+      ex:{ zh:"我没有时间。", py:"Wǒ méiyǒu shíjiān.", en:"I don't have time.", es:"No tengo tiempo." } },
+    { id:"l2-09", zh:"今天", py:"jīntiān", en:"today", es:"hoy", tag:"tiempo",
+      mn:"天 = día/cielo. Aprende los tres juntos como una familia: 今天 (hoy) / 明天 (mañana) / 昨天 (ayer). Todos terminan en 天, igual que en inglés todos terminan en -day (today, yesterday).",
+      ex:{ zh:"今天很忙。", py:"Jīntiān hěn máng.", en:"Today is very busy.", es:"Hoy estoy muy ocupado." } },
+    { id:"l2-10", zh:"明天", py:"míngtiān", en:"tomorrow", es:"mañana", tag:"tiempo",
+      mn:"明 = 日 (sol) + 月 (luna) = brillante, el día que viene. Truco de traductor: «mañana» en español es AMBIGUO (tomorrow / morning); en chino son distintas: 明天 vs 早上. Cuidado al traducir.",
+      ex:{ zh:"明天见。", py:"Míngtiān jiàn.", en:"See you tomorrow.", es:"Nos vemos mañana." } },
+    { id:"l2-11", zh:"昨天", py:"zuótiān", en:"yesterday", es:"ayer", tag:"tiempo",
+      mn:"«zuó» ≈ «suo». Truco: el pasado ya se fue, «se lo llevó el ZUÓ-pilote». Clave gramatical: el chino NO conjuga; el tiempo lo marca esta palabra, no el verbo. Eso te ahorra todos los pretéritos del español.",
+      ex:{ zh:"昨天我很累。", py:"Zuótiān wǒ hěn lèi.", en:"Yesterday I was very tired.", es:"Ayer estaba muy cansado." } },
+    { id:"l2-12", zh:"去", py:"qù", en:"to go", es:"ir", tag:"movimiento",
+      mn:"«qù» ≈ «chü». Truco: «¿a dónde vas? ¡A la CU (universidad)!». Par obligado: 去/来 = ir/venir = go/come.",
+      ex:{ zh:"我去公司。", py:"Wǒ qù gōngsī.", en:"I'm going to the office.", es:"Voy a la oficina." } },
+    { id:"l2-13", zh:"来", py:"lái", en:"to come", es:"venir", tag:"movimiento",
+      mn:"«lái» suena a «lai» → «¡LÁI-le, ven acá!». Visual: 来 parece un árbol con brazos abiertos recibiéndote.",
+      ex:{ zh:"请来我的办公室。", py:"Qǐng lái wǒ de bàngōngshì.", en:"Please come to my office.", es:"Por favor ven a mi oficina." } },
+    { id:"l2-14", zh:"买 / 卖", py:"mǎi / mài", en:"buy / sell", es:"comprar / vender", tag:"dinero",
+      mn:"¡El par más confuso y el más rentable! 卖 (vender) tiene un trazo 十 ARRIBA: el que vende SUMA dinero. 买 (comprar) no lo tiene: el que compra no suma nada. Sonido: mǎi (3er tono, baja) = comprar, el dinero BAJA; mài (4º tono, cae seco) = vender, cierras el trato.",
+      ex:{ zh:"我们买，他们卖。", py:"Wǒmen mǎi, tāmen mài.", en:"We buy, they sell.", es:"Nosotros compramos, ellos venden." } },
+    { id:"l2-15", zh:"钱", py:"qián", en:"money", es:"dinero", tag:"dinero",
+      mn:"钱 lleva el radical 钅(metal): el dinero era metal. Todo carácter con 钅tiene que ver con metal o dinero (银行 = banco). «qián» ≈ «chien».",
+      ex:{ zh:"这个多少钱？", py:"Zhège duōshao qián?", en:"How much is this?", es:"¿Cuánto cuesta esto?" } },
+    { id:"l2-16", zh:"多少", py:"duōshao", en:"how much / how many", es:"cuánto / cuántos", tag:"preguntas",
+      mn:"Literal: 多 (mucho) + 少 (poco) = «¿mucho o poco?» = CUÁNTO. El chino pregunta juntando los dos extremos, un truco que también existe en español: «¿qué tan grande o chico?».",
+      ex:{ zh:"你们有多少客户？", py:"Nǐmen yǒu duōshao kèhù?", en:"How many clients do you have?", es:"¿Cuántos clientes tienen?" } },
+    { id:"l2-17", zh:"贵", py:"guì", en:"expensive", es:"caro", tag:"dinero",
+      mn:"贵 lleva 贝 (concha) abajo: las conchas eran la moneda antigua. Muchas conchas = CARO. «guì» ≈ «gwei» → «¡GÜEY, qué caro!» (100% memorable en México).",
+      ex:{ zh:"太贵了！", py:"Tài guì le!", en:"Too expensive!", es:"¡Demasiado caro!" } },
+    { id:"l2-18", zh:"便宜", py:"piányi", en:"cheap", es:"barato", tag:"dinero",
+      mn:"«pián-yi» ≈ «pien-i» → «PIÉNsalo, sí está barato». Ojo trampa: 便 se lee «biàn» en otras palabras; aquí es «pián». Es de las pocas excepciones, márcala.",
+      ex:{ zh:"有便宜一点的吗？", py:"Yǒu piányi yìdiǎn de ma?", en:"Do you have a cheaper one?", es:"¿Tiene uno más barato?" } },
+    { id:"l2-19", zh:"车", py:"chē", en:"car / vehicle", es:"coche / vehículo", tag:"movimiento",
+      mn:"车 es un carro visto desde arriba: la línea vertical es el eje y la caja es la carrocería. «chē» ≈ «che». Combina: 汽车 (auto), 火车 (tren = carro de fuego), 出租车 (taxi = carro que se renta).",
+      ex:{ zh:"我坐出租车去。", py:"Wǒ zuò chūzūchē qù.", en:"I'll go by taxi.", es:"Voy en taxi." } },
+    { id:"l2-20", zh:"工作", py:"gōngzuò", en:"work / job", es:"trabajo / trabajar", tag:"trabajo",
+      mn:"工 es una herramienta antigua (un mazo) → trabajo manual. «gōng-zuò» ≈ «gong-tsuo»: imagina el GONG que marca la hora de entrar a TRABAJAR. Igual que en inglés y español, sirve de sustantivo Y de verbo.",
+      ex:{ zh:"我的工作很有意思。", py:"Wǒ de gōngzuò hěn yǒuyìsi.", en:"My job is very interesting.", es:"Mi trabajo es muy interesante." } }
+  ]
+},
+{
+  id: 3,
+  code: "N3",
+  name: { es: "Conversación", en: "Conversation", zh: "会话" },
+  cefr: "B1",
+  goal: {
+    es: "Dar opiniones, conectar ideas con causas y consecuencias, resolver situaciones.",
+    en: "Give opinions, connect ideas with causes and results, resolve situations.",
+    zh: "表达观点、说明因果、处理问题。"
+  },
+  items: [
+    { id:"l3-01", zh:"觉得", py:"juéde", en:"to think / to feel", es:"creer / opinar / sentir", tag:"opinión",
+      mn:"«jué-de» ≈ «jüe-de». Truco: «yo JUZ-go, yo creo». Estructura fija en los tres idiomas: 我觉得… = I think that… = Yo creo que… Es tu arranque para toda opinión.",
+      ex:{ zh:"我觉得这个价格太高。", py:"Wǒ juéde zhège jiàgé tài gāo.", en:"I think this price is too high.", es:"Creo que este precio es demasiado alto." } },
+    { id:"l3-02", zh:"因为", py:"yīnwèi", en:"because", es:"porque", tag:"conectores",
+      mn:"«yīn-wèi» ≈ «in-uei». Par inseparable con 所以 (por eso). ¡Diferencia clave! El chino usa LOS DOS a la vez: 因为…所以… («porque… por eso…»), algo que en español suena redundante y en inglés es un error. Memoriza la pareja completa.",
+      ex:{ zh:"因为下雨，所以我迟到了。", py:"Yīnwèi xiàyǔ, suǒyǐ wǒ chídào le.", en:"Because it rained, I was late.", es:"Como llovió, llegué tarde." } },
+    { id:"l3-03", zh:"所以", py:"suǒyǐ", en:"so / therefore", es:"por eso / así que", tag:"conectores",
+      mn:"«suǒ-yǐ» ≈ «suo-i». Truco: «SU-Yo, por eso es suyo». Va siempre en la segunda mitad de la frase, nunca al inicio absoluto.",
+      ex:{ zh:"成本上升，所以我们要调价。", py:"Chéngběn shàngshēng, suǒyǐ wǒmen yào tiáojià.", en:"Costs went up, so we need to adjust prices.", es:"Subieron los costos, por eso hay que ajustar precios." } },
+    { id:"l3-04", zh:"但是", py:"dànshì", en:"but", es:"pero", tag:"conectores",
+      mn:"«dàn-shì» ≈ «dan-shi». Truco: «DAN una cosa, pero…». Fórmula de negociación que vale oro: 虽然…但是… = «aunque…, pero…» = «although…, …». Úsala para suavizar un no.",
+      ex:{ zh:"质量很好，但是太贵了。", py:"Zhìliàng hěn hǎo, dànshì tài guì le.", en:"The quality is great, but it's too expensive.", es:"La calidad es muy buena, pero es demasiado caro." } },
+    { id:"l3-05", zh:"可以", py:"kěyǐ", en:"can / may", es:"poder (permiso)", tag:"modales",
+      mn:"«kě-yǐ» ≈ «ke-i» → «¿KE-I? ¡Sí se puede!». Ojo: hay TRES «poder» en chino: 可以 (permiso), 能 (capacidad física), 会 (habilidad aprendida). El español los junta todos en «poder/saber»; ahí es donde te van a corregir.",
+      ex:{ zh:"我可以问一个问题吗？", py:"Wǒ kěyǐ wèn yí ge wèntí ma?", en:"May I ask a question?", es:"¿Puedo hacer una pregunta?" } },
+    { id:"l3-06", zh:"应该", py:"yīnggāi", en:"should / ought to", es:"deber / debería", tag:"modales",
+      mn:"«yīng-gāi» ≈ «ing-gai». Truco: «ING-eniero, deberías…». Suaviza cualquier instrucción: 你应该… es mucho más educado que una orden directa, igual que «deberías» vs «haz».",
+      ex:{ zh:"我们应该先确认预算。", py:"Wǒmen yīnggāi xiān quèrèn yùsuàn.", en:"We should confirm the budget first.", es:"Deberíamos confirmar el presupuesto primero." } },
+    { id:"l3-07", zh:"需要", py:"xūyào", en:"to need", es:"necesitar", tag:"modales",
+      mn:"«xū-yào» ≈ «shü-yao» → «SÚ-YO lo necesito». Diferencia útil: 要 solo = «querer/pedir» (directo, casi exigente); 需要 = «necesitar» (neutral, profesional). En negocios usa siempre 需要.",
+      ex:{ zh:"我们需要更多信息。", py:"Wǒmen xūyào gèng duō xìnxī.", en:"We need more information.", es:"Necesitamos más información." } },
+    { id:"l3-08", zh:"帮助", py:"bāngzhù", en:"to help / help", es:"ayudar / ayuda", tag:"acciones",
+      mn:"«bāng-zhù» ≈ «bang-chu». Truco: «¡BANG! llegó la ayuda». Sirve como verbo y sustantivo, igual que «help» en inglés; el español separa «ayudar/ayuda».",
+      ex:{ zh:"谢谢你的帮助。", py:"Xièxie nǐ de bāngzhù.", en:"Thank you for your help.", es:"Gracias por tu ayuda." } },
+    { id:"l3-09", zh:"问题", py:"wèntí", en:"problem / question", es:"problema / pregunta", tag:"acciones",
+      mn:"问 lleva 口 (boca) dentro de una puerta 门: la boca que pregunta en la puerta. ¡Doble sentido igual que en inglés «issue»! 没问题 = «no problem» = «sin problema»: apréndelo como bloque, lo vas a usar diario.",
+      ex:{ zh:"没问题，我来处理。", py:"Méi wèntí, wǒ lái chǔlǐ.", en:"No problem, I'll handle it.", es:"Sin problema, yo me encargo." } },
+    { id:"l3-10", zh:"解决", py:"jiějué", en:"to solve", es:"resolver / solucionar", tag:"acciones",
+      mn:"«jiě-jué» ≈ «yie-yüe». Truco: «lo DES-ATO» — 解 significa literalmente desatar/desamarrar un nudo. Resolver = desatar el nudo, misma imagen que en español «desenredar el problema».",
+      ex:{ zh:"这个问题已经解决了。", py:"Zhège wèntí yǐjīng jiějué le.", en:"This problem has already been solved.", es:"Este problema ya se resolvió." } },
+    { id:"l3-11", zh:"开始", py:"kāishǐ", en:"to start / begin", es:"empezar / comenzar", tag:"acciones",
+      mn:"开 = abrir (mira los trazos: dos manos abriendo una puerta). Empezar = abrir. «kāi-shǐ» ≈ «kai-shi». Par obligado con 结束 (terminar).",
+      ex:{ zh:"会议什么时候开始？", py:"Huìyì shénme shíhou kāishǐ?", en:"When does the meeting start?", es:"¿Cuándo empieza la reunión?" } },
+    { id:"l3-12", zh:"结束", py:"jiéshù", en:"to finish / end", es:"terminar / finalizar", tag:"acciones",
+      mn:"«jié-shù» ≈ «yie-shu». 结 significa «anudar»: terminar = hacer el nudo final. Fíjate en la simetría: 解 desata (resolver) y 结 ata (terminar). Los aprendes en pareja.",
+      ex:{ zh:"项目下个月结束。", py:"Xiàngmù xià ge yuè jiéshù.", en:"The project ends next month.", es:"El proyecto termina el próximo mes." } },
+    { id:"l3-13", zh:"已经", py:"yǐjīng", en:"already", es:"ya", tag:"tiempo",
+      mn:"«yǐ-jīng» ≈ «i-ching». Casi siempre viaja con 了 al final: 已经…了 = ya … (hecho). Ese par te da el pretérito perfecto («ya lo hice» / «I have already done it») sin conjugar nada.",
+      ex:{ zh:"我已经发邮件了。", py:"Wǒ yǐjīng fā yóujiàn le.", en:"I have already sent the email.", es:"Ya envié el correo." } },
+    { id:"l3-14", zh:"还没", py:"hái méi", en:"not yet", es:"todavía no / aún no", tag:"tiempo",
+      mn:"Opuesto exacto de 已经…了. Regla dura: para negar el pasado se usa 没 (nunca 不). «hái» ≈ «jai» → «JAI, todavía no».",
+      ex:{ zh:"客户还没回复。", py:"Kèhù hái méi huífù.", en:"The client hasn't replied yet.", es:"El cliente todavía no responde." } },
+    { id:"l3-15", zh:"一起", py:"yìqǐ", en:"together", es:"juntos", tag:"social",
+      mn:"一 (uno) + 起 (levantarse) = «levantarse como uno» = JUNTOS. «yì-qǐ» ≈ «i-chi». Va antes del verbo: 我们一起去 = «vamos juntos».",
+      ex:{ zh:"我们一起讨论吧。", py:"Wǒmen yìqǐ tǎolùn ba.", en:"Let's discuss it together.", es:"Discutámoslo juntos." } },
+    { id:"l3-16", zh:"重要", py:"zhòngyào", en:"important", es:"importante", tag:"adjetivos",
+      mn:"重 = pesado. Importante = que PESA. Exactamente la misma metáfora que en español («un asunto de peso») y en inglés («weighty matter»). Los tres idiomas coinciden: úsalo como ancla.",
+      ex:{ zh:"这是最重要的部分。", py:"Zhè shì zuì zhòngyào de bùfen.", en:"This is the most important part.", es:"Esta es la parte más importante." } },
+    { id:"l3-17", zh:"容易", py:"róngyì", en:"easy", es:"fácil", tag:"adjetivos",
+      mn:"«róng-yì» ≈ «rong-i». Truco: «RON-Yi lo hace fácil». Aviso: en inglés «easy» también significa «tranquilo» (take it easy); en chino NO. Un falso amigo que corta muchas traducciones.",
+      ex:{ zh:"这个软件很容易用。", py:"Zhège ruǎnjiàn hěn róngyì yòng.", en:"This software is very easy to use.", es:"Este software es muy fácil de usar." } },
+    { id:"l3-18", zh:"难", py:"nán", en:"difficult / hard", es:"difícil", tag:"adjetivos",
+      mn:"«nán» ≈ «nan». Truco: «está de la NA-Nada de difícil». Combínalo: 很难 = muy difícil; 太难了 = ¡demasiado difícil!",
+      ex:{ zh:"中文不难，只是不一样。", py:"Zhōngwén bù nán, zhǐshì bù yíyàng.", en:"Chinese isn't hard, it's just different.", es:"El chino no es difícil, solo es diferente." } },
+    { id:"l3-19", zh:"经验", py:"jīngyàn", en:"experience", es:"experiencia", tag:"trabajo",
+      mn:"«jīng-yàn» ≈ «ching-ien». Ojo profesional: 经验 = experiencia acumulada (CV); 经历 = una vivencia concreta. El inglés y el español usan «experiencia» para ambas: en chino debes elegir.",
+      ex:{ zh:"她有十年的工作经验。", py:"Tā yǒu shí nián de gōngzuò jīngyàn.", en:"She has ten years of work experience.", es:"Ella tiene diez años de experiencia laboral." } },
+    { id:"l3-20", zh:"学习", py:"xuéxí", en:"to study / to learn", es:"estudiar / aprender", tag:"trabajo",
+      mn:"«xué-xí» ≈ «shüe-shi». 学 tiene un techo 冖 sobre un niño 子: el niño bajo el techo de la escuela. Nota fina: el chino usa una sola palabra para «estudiar» y «aprender», el español dos y el inglés dos (study/learn). Al traducir, pregunta: ¿proceso o resultado?",
+      ex:{ zh:"我在学习西班牙语和英语。", py:"Wǒ zài xuéxí Xībānyáyǔ hé Yīngyǔ.", en:"I'm learning Spanish and English.", es:"Estoy aprendiendo español e inglés." } }
+  ]
+}
+];
+
+</script>
+<script>
+/* ============================================================
+   NIVELES 4-6  ·  Oficina → Negocios → Negocios avanzado
+   ============================================================ */
+window.LEVELS_B = [
+{
+  id: 4,
+  code: "N4",
+  name: { es: "Oficina y trabajo", en: "Office & work", zh: "职场" },
+  cefr: "B2",
+  goal: {
+    es: "Funcionar en una oficina: reuniones, correos, plazos y responsabilidades.",
+    en: "Operate in an office: meetings, emails, deadlines and ownership.",
+    zh: "在职场中运作：会议、邮件、期限与责任。"
+  },
+  items: [
+    { id:"l4-01", zh:"公司", py:"gōngsī", en:"company", es:"empresa / compañía", tag:"organización",
+      mn:"公 = público/común + 司 = administrar → «lo que se administra en común» = EMPRESA. «gōng-sī» ≈ «gong-si». Nota: «compañía» en español y «company» en inglés vienen de «con + pan» (los que comparten el pan); el chino usa otra lógica: lo público administrado.",
+      ex:{ zh:"我们公司在墨西哥城。", py:"Wǒmen gōngsī zài Mòxīgē Chéng.", en:"Our company is in Mexico City.", es:"Nuestra empresa está en la Ciudad de México." } },
+    { id:"l4-02", zh:"同事", py:"tóngshì", en:"colleague / coworker", es:"colega / compañero de trabajo", tag:"organización",
+      mn:"同 = mismo + 事 = asunto → «el del mismo asunto» = COLEGA. Mismo esquema que el inglés «co-worker» (co = mismo) y el español «com-pañero». Los tres idiomas dicen «el que va conmigo».",
+      ex:{ zh:"我的同事会参加会议。", py:"Wǒ de tóngshì huì cānjiā huìyì.", en:"My colleague will join the meeting.", es:"Mi colega asistirá a la reunión." } },
+    { id:"l4-03", zh:"老板", py:"lǎobǎn", en:"boss", es:"jefe / patrón", tag:"organización",
+      mn:"老 = viejo/venerable + 板 = tabla/mostrador → «el viejo del mostrador» (el dueño de la tienda). «lǎo-bǎn» ≈ «lao-ban». Ojo cultural: 老 aquí NO es insulto, es respeto, igual que «el viejo» cariñoso en México.",
+      ex:{ zh:"我要跟老板确认。", py:"Wǒ yào gēn lǎobǎn quèrèn.", en:"I need to confirm with the boss.", es:"Necesito confirmarlo con el jefe." } },
+    { id:"l4-04", zh:"会议", py:"huìyì", en:"meeting", es:"reunión / junta", tag:"reuniones",
+      mn:"«huì-yì» ≈ «juei-i». Truco mexicano: «EL BUEY Y YO en la junta». 会 = reunirse + 议 = deliberar. Verbo asociado: 开会 (kāihuì) = «abrir reunión» = tener junta.",
+      ex:{ zh:"会议改到下午三点。", py:"Huìyì gǎi dào xiàwǔ sān diǎn.", en:"The meeting is moved to 3 p.m.", es:"La junta se movió a las 3 de la tarde." } },
+    { id:"l4-05", zh:"报告", py:"bàogào", en:"report", es:"reporte / informe", tag:"documentos",
+      mn:"«bào-gào» ≈ «bao-gao» → suena a «BAO… ¡GO!»: entrega el reporte y corre. 报 = informar + 告 = avisar. Sirve de sustantivo y de verbo, igual que «report».",
+      ex:{ zh:"请在周五前提交报告。", py:"Qǐng zài zhōuwǔ qián tíjiāo bàogào.", en:"Please submit the report before Friday.", es:"Por favor entrega el informe antes del viernes." } },
+    { id:"l4-06", zh:"邮件", py:"yóujiàn", en:"email", es:"correo electrónico", tag:"documentos",
+      mn:"邮 = correo postal + 件 = pieza/documento. «yóu-jiàn» ≈ «yo-yien» → «YO envío». Verbo: 发邮件 (fā yóujiàn) = «emitir correo» = enviar un mail.",
+      ex:{ zh:"我已经发邮件给客户了。", py:"Wǒ yǐjīng fā yóujiàn gěi kèhù le.", en:"I already emailed the client.", es:"Ya le mandé correo al cliente." } },
+    { id:"l4-07", zh:"计划", py:"jìhuà", en:"plan", es:"plan / planear", tag:"gestión",
+      mn:"计 = calcular (lleva 讠 palabra + 十 diez: contar hablando) + 划 = trazar. Plan = calcular y trazar. «jì-huà» ≈ «yi-jua».",
+      ex:{ zh:"这不在我们的计划里。", py:"Zhè bú zài wǒmen de jìhuà lǐ.", en:"This is not in our plan.", es:"Esto no está en nuestro plan." } },
+    { id:"l4-08", zh:"项目", py:"xiàngmù", en:"project", es:"proyecto", tag:"gestión",
+      mn:"«xiàng-mù» ≈ «shiang-mu». Truco: un proyecto tiene «SIEN MUchas partes». 项 = ítem/rubro, 目 = ojo/apartado. Literalmente «los rubros a la vista».",
+      ex:{ zh:"这个项目的负责人是谁？", py:"Zhège xiàngmù de fùzérén shì shéi?", en:"Who is the owner of this project?", es:"¿Quién es el responsable de este proyecto?" } },
+    { id:"l4-09", zh:"客户", py:"kèhù", en:"client / customer", es:"cliente", tag:"comercial",
+      mn:"客 = invitado/huésped + 户 = hogar/cuenta → «el invitado con cuenta» = CLIENTE. Mentalidad china de servicio: el cliente es un INVITADO en tu casa. «kè-hù» ≈ «ke-ju».",
+      ex:{ zh:"我们最大的客户在北京。", py:"Wǒmen zuì dà de kèhù zài Běijīng.", en:"Our biggest client is in Beijing.", es:"Nuestro cliente más grande está en Pekín." } },
+    { id:"l4-10", zh:"部门", py:"bùmén", en:"department", es:"departamento / área", tag:"organización",
+      mn:"部 = parte/sección + 门 = puerta → «la sección tras la puerta» = DEPARTAMENTO. «bù-mén» ≈ «bu-men». Recuerda 门 dibuja literalmente una puerta de dos hojas.",
+      ex:{ zh:"财务部门需要发票。", py:"Cáiwù bùmén xūyào fāpiào.", en:"The finance department needs the invoice.", es:"El área de finanzas necesita la factura." } },
+    { id:"l4-11", zh:"负责", py:"fùzé", en:"to be responsible for / to own", es:"encargarse de / ser responsable de", tag:"gestión",
+      mn:"负 = cargar sobre la espalda + 责 = deber → «cargar el deber» = RESPONSABILIZARSE. Idéntico al español «llevar la carga» / «hacerse cargo». 负责人 = «la persona que carga» = el responsable.",
+      ex:{ zh:"我负责这个项目。", py:"Wǒ fùzé zhège xiàngmù.", en:"I'm responsible for this project.", es:"Yo me encargo de este proyecto." } },
+    { id:"l4-12", zh:"安排", py:"ānpái", en:"to arrange / to schedule", es:"organizar / agendar", tag:"gestión",
+      mn:"安 = paz/asentar + 排 = poner en fila → «asentar en orden» = AGENDAR. «ān-pái» ≈ «an-pai» → «ANda, PÁI-nalo en la agenda».",
+      ex:{ zh:"我来安排下周的会议。", py:"Wǒ lái ānpái xià zhōu de huìyì.", en:"I'll schedule next week's meeting.", es:"Yo agendo la junta de la próxima semana." } },
+    { id:"l4-13", zh:"通知", py:"tōngzhī", en:"to notify / notice", es:"avisar / notificación", tag:"comunicación",
+      mn:"通 = pasar a través + 知 = saber → «hacer que el saber pase» = NOTIFICAR. «tōng-zhī» ≈ «tong-chi». Verbo y sustantivo a la vez, como «notice».",
+      ex:{ zh:"请提前通知我们。", py:"Qǐng tíqián tōngzhī wǒmen.", en:"Please notify us in advance.", es:"Por favor avísanos con anticipación." } },
+    { id:"l4-14", zh:"确认", py:"quèrèn", en:"to confirm", es:"confirmar", tag:"comunicación",
+      mn:"确 = firme/sólido + 认 = reconocer → «reconocer en firme» = CONFIRMAR. «què-rèn» ≈ «chüe-ren». Frase de oro en correos: 请确认 = «please confirm» = «favor de confirmar».",
+      ex:{ zh:"请确认收到这封邮件。", py:"Qǐng quèrèn shōudào zhè fēng yóujiàn.", en:"Please confirm receipt of this email.", es:"Por favor confirma la recepción de este correo." } },
+    { id:"l4-15", zh:"截止日期", py:"jiézhǐ rìqī", en:"deadline / due date", es:"fecha límite", tag:"gestión",
+      mn:"截 = cortar + 止 = detener + 日期 = fecha → «la fecha en que se corta y se detiene». El inglés «dead-line» usa la misma violencia (la línea de la muerte); el español lo suaviza a «fecha límite». La imagen del corte te sirve para los tres.",
+      ex:{ zh:"截止日期是这个月底。", py:"Jiézhǐ rìqī shì zhège yuèdǐ.", en:"The deadline is the end of this month.", es:"La fecha límite es a fin de mes." } },
+    { id:"l4-16", zh:"加班", py:"jiābān", en:"to work overtime", es:"hacer tiempo extra / quedarse tarde", tag:"trabajo",
+      mn:"加 = añadir + 班 = turno → «añadir turno» = TIEMPO EXTRA. «jiā-bān» ≈ «yia-ban». Es una palabra culturalmente pesada en China (996): úsala con contexto, no como broma.",
+      ex:{ zh:"这周我加了三天班。", py:"Zhè zhōu wǒ jiā le sān tiān bān.", en:"I worked overtime three days this week.", es:"Esta semana hice tiempo extra tres días." } },
+    { id:"l4-17", zh:"出差", py:"chūchāi", en:"business trip", es:"viaje de negocios", tag:"trabajo",
+      mn:"出 = salir + 差 = encargo/misión → «salir con encargo» = VIAJE DE TRABAJO. «chū-chāi» ≈ «chu-chai». Es VERBO: 我去出差 = «voy de viaje de trabajo», no «tengo un viaje».",
+      ex:{ zh:"下周我要去上海出差。", py:"Xià zhōu wǒ yào qù Shànghǎi chūchāi.", en:"Next week I'm traveling to Shanghai on business.", es:"La próxima semana viajo a Shanghái por trabajo." } },
+    { id:"l4-18", zh:"培训", py:"péixùn", en:"training", es:"capacitación / formación", tag:"trabajo",
+      mn:"培 = cultivar (lleva 土 tierra: como a una planta) + 训 = instruir → «cultivar instruyendo». Misma metáfora que el español «formar» y el inglés «to grow talent». «péi-xùn» ≈ «pei-shün».",
+      ex:{ zh:"公司下个月有销售培训。", py:"Gōngsī xià ge yuè yǒu xiāoshòu péixùn.", en:"The company has sales training next month.", es:"La empresa tiene capacitación de ventas el próximo mes." } },
+    { id:"l4-19", zh:"效率", py:"xiàolǜ", en:"efficiency", es:"eficiencia", tag:"gestión",
+      mn:"效 = efecto + 率 = tasa → «tasa de efecto» = EFICIENCIA. Ese 率 (lǜ = tasa/ratio) reaparece en 汇率 (tipo de cambio) y 利率 (tasa de interés): apréndelo como bloque, te da tres palabras.",
+      ex:{ zh:"这个流程可以提高效率。", py:"Zhège liúchéng kěyǐ tígāo xiàolǜ.", en:"This process can improve efficiency.", es:"Este proceso puede mejorar la eficiencia." } },
+    { id:"l4-20", zh:"目标", py:"mùbiāo", en:"goal / target", es:"objetivo / meta", tag:"gestión",
+      mn:"目 = ojo + 标 = marca/señal → «la marca donde pones el ojo» = OBJETIVO. Exactamente la imagen del inglés «target» (la diana) y del español «poner la mira en». «mù-biāo» ≈ «mu-biao».",
+      ex:{ zh:"今年的目标是增长百分之二十。", py:"Jīnnián de mùbiāo shì zēngzhǎng bǎi fēn zhī èrshí.", en:"This year's target is 20% growth.", es:"La meta de este año es crecer 20%." } }
+  ]
+},
+{
+  id: 5,
+  code: "N5",
+  name: { es: "Negocios", en: "Business", zh: "商务" },
+  cefr: "B2+/C1",
+  goal: {
+    es: "Vender, cotizar, negociar precios y hablar de costos, márgenes y riesgos.",
+    en: "Sell, quote, negotiate prices and talk about costs, margins and risk.",
+    zh: "销售、报价、议价，讨论成本、利润与风险。"
+  },
+  items: [
+    { id:"l5-01", zh:"市场", py:"shìchǎng", en:"market", es:"mercado", tag:"comercial",
+      mn:"市 = ciudad/plaza + 场 = campo abierto → «la plaza abierta» = MERCADO. Cubre los dos sentidos igual que en español: el mercado físico y el mercado abstracto (market share = 市场份额).",
+      ex:{ zh:"拉美市场增长很快。", py:"Lāměi shìchǎng zēngzhǎng hěn kuài.", en:"The Latin American market is growing fast.", es:"El mercado latinoamericano crece rápido." } },
+    { id:"l5-02", zh:"销售", py:"xiāoshòu", en:"sales", es:"ventas", tag:"comercial",
+      mn:"销 = despachar/fundir + 售 = vender. «xiāo-shòu» ≈ «shiao-shou». Truco: «SHOW y se vende». Ojo: 销售 = la FUNCIÓN de ventas (el área); 卖 = el acto de vender. En un CV siempre va 销售.",
+      ex:{ zh:"销售团队有十个人。", py:"Xiāoshòu tuánduì yǒu shí ge rén.", en:"The sales team has ten people.", es:"El equipo de ventas tiene diez personas." } },
+    { id:"l5-03", zh:"成本", py:"chéngběn", en:"cost", es:"costo", tag:"finanzas",
+      mn:"成 = lograr/formar + 本 = raíz/capital (mira 本: es 木 «árbol» con una raya en la RAÍZ). «lo que cuesta formar desde la raíz» = COSTO. Ese 本 = «capital/raíz» aparece en 资本 (capital) y 成本 (costo).",
+      ex:{ zh:"我们要控制成本。", py:"Wǒmen yào kòngzhì chéngběn.", en:"We need to control costs.", es:"Tenemos que controlar los costos." } },
+    { id:"l5-04", zh:"利润", py:"lìrùn", en:"profit", es:"utilidad / ganancia", tag:"finanzas",
+      mn:"利 = beneficio (grano 禾 + cuchillo 刂: cosechar el grano) + 润 = humedecer/enriquecer. «la cosecha que enriquece» = UTILIDAD. Ojo México: se dice «utilidad», no «profito»; en inglés «profit», nunca «utility» (falso amigo caro).",
+      ex:{ zh:"今年的利润率是百分之十五。", py:"Jīnnián de lìrùnlǜ shì bǎi fēn zhī shíwǔ.", en:"This year's profit margin is 15%.", es:"El margen de utilidad de este año es 15%." } },
+    { id:"l5-05", zh:"预算", py:"yùsuàn", en:"budget", es:"presupuesto", tag:"finanzas",
+      mn:"预 = anticipado (mismo 预 de «pre-») + 算 = calcular → «cálculo anticipado». ¡Es literalmente PRE-SUPUESTO y PRE-computed! Los tres idiomas construyen la palabra igual: anticipar + calcular. «yù-suàn» ≈ «yu-suan» → «YO SUAN-o con el presupuesto».",
+      ex:{ zh:"这个超出预算了。", py:"Zhège chāochū yùsuàn le.", en:"This is over budget.", es:"Esto se pasó del presupuesto." } },
+    { id:"l5-06", zh:"投资", py:"tóuzī", en:"investment / to invest", es:"inversión / invertir", tag:"finanzas",
+      mn:"投 = lanzar/arrojar + 资 = recursos → «arrojar recursos» = INVERTIR. La imagen es honesta: inviertes lanzando el dinero hacia adelante. «tóu-zī» ≈ «tou-tsi».",
+      ex:{ zh:"我们打算投资新设备。", py:"Wǒmen dǎsuàn tóuzī xīn shèbèi.", en:"We plan to invest in new equipment.", es:"Planeamos invertir en equipo nuevo." } },
+    { id:"l5-07", zh:"合同", py:"hétong", en:"contract", es:"contrato", tag:"legal",
+      mn:"合 = unir/encajar + 同 = igual/mismo → «lo que ambos firman igual» = CONTRATO. «hé-tong» ≈ «je-tong». Truco: «HE-TON-go el contrato firmado». 签合同 = firmar contrato.",
+      ex:{ zh:"合同下周签。", py:"Hétong xià zhōu qiān.", en:"The contract will be signed next week.", es:"El contrato se firma la próxima semana." } },
+    { id:"l5-08", zh:"谈判", py:"tánpàn", en:"negotiation / to negotiate", es:"negociación / negociar", tag:"negociación",
+      mn:"谈 = conversar + 判 = juzgar/decidir → «conversar hasta decidir» = NEGOCIAR. «tán-pàn» ≈ «tan-pan» → «TAN-to PAN se negocia». Nota: es más formal que el español «negociar»; para el regateo cotidiano se usa 讲价.",
+      ex:{ zh:"谈判进行得很顺利。", py:"Tánpàn jìnxíng de hěn shùnlì.", en:"The negotiation is going smoothly.", es:"La negociación va muy bien." } },
+    { id:"l5-09", zh:"报价", py:"bàojià", en:"quote / quotation", es:"cotización / cotizar", tag:"comercial",
+      mn:"报 = informar (el mismo 报 de 报告 «reporte») + 价 = precio → «informar el precio» = COTIZAR. Si ya sabes 报告, esta te sale gratis: misma familia.",
+      ex:{ zh:"请给我们发一份报价。", py:"Qǐng gěi wǒmen fā yí fèn bàojià.", en:"Please send us a quote.", es:"Por favor envíanos una cotización." } },
+    { id:"l5-10", zh:"折扣", py:"zhékòu", en:"discount", es:"descuento", tag:"negociación",
+      mn:"折 = doblar/partir + 扣 = descontar → «partir el precio». ¡TRAMPA CULTURAL! En China 八折 (8折) NO es 8% de descuento: es que pagas el 80% (o sea, 20% off). Se cuenta lo que PAGAS, no lo que te quitan. Este error cuesta dinero real.",
+      ex:{ zh:"我们可以给你打九折。", py:"Wǒmen kěyǐ gěi nǐ dǎ jiǔ zhé.", en:"We can give you 10% off.", es:"Podemos darte 10% de descuento." } },
+    { id:"l5-11", zh:"供应商", py:"gōngyìngshāng", en:"supplier / vendor", es:"proveedor", tag:"cadena",
+      mn:"供应 = suministrar + 商 = comerciante → «el comerciante que suministra». Ese 商 = comercio/comerciante te da toda una familia: 商业 (negocio), 商务 (asuntos comerciales), 电商 (e-commerce).",
+      ex:{ zh:"我们在找新的供应商。", py:"Wǒmen zài zhǎo xīn de gōngyìngshāng.", en:"We're looking for a new supplier.", es:"Estamos buscando un nuevo proveedor." } },
+    { id:"l5-12", zh:"库存", py:"kùcún", en:"inventory / stock", es:"inventario / existencias", tag:"cadena",
+      mn:"库 = almacén/bodega + 存 = guardar → «lo guardado en bodega» = INVENTARIO. «kù-cún» ≈ «ku-tsun». Cuidado: en inglés «stock» también es «acción bursátil» (股票 en chino). Dos conceptos, no los mezcles.",
+      ex:{ zh:"库存不够了。", py:"Kùcún bú gòu le.", en:"We're running out of stock.", es:"Ya no alcanza el inventario." } },
+    { id:"l5-13", zh:"交货", py:"jiāohuò", en:"delivery (of goods)", es:"entrega (de mercancía)", tag:"cadena",
+      mn:"交 = entregar/intercambiar + 货 = mercancía. «jiāo-huò» ≈ «yiao-juo». Distingue: 交货 = entrega de mercancía (comercio); 送货 = envío a domicilio. El español «entrega» y el inglés «delivery» cubren ambas.",
+      ex:{ zh:"交货时间是三十天。", py:"Jiāohuò shíjiān shì sānshí tiān.", en:"Delivery time is thirty days.", es:"El tiempo de entrega es de treinta días." } },
+    { id:"l5-14", zh:"付款", py:"fùkuǎn", en:"payment / to pay", es:"pago / pagar", tag:"finanzas",
+      mn:"付 = entregar (亻persona + 寸 mano) + 款 = suma de dinero → «entregar la suma». «fù-kuǎn» ≈ «fu-kuan». Familia: 付款 (pagar), 收款 (cobrar), 退款 (reembolsar). Los tres con 款.",
+      ex:{ zh:"付款条件是三十天。", py:"Fùkuǎn tiáojiàn shì sānshí tiān.", en:"Payment terms are thirty days.", es:"Las condiciones de pago son a treinta días." } },
+    { id:"l5-15", zh:"发票", py:"fāpiào", en:"invoice / official receipt", es:"factura", tag:"finanzas",
+      mn:"发 = emitir + 票 = boleto/comprobante → «comprobante emitido» = FACTURA. Nota fiscal clave: el 发票 chino es un documento fiscal oficial controlado por el Estado, igual que el CFDI mexicano. NO es el «invoice» informal del inglés: si un proveedor chino te da un «receipt» sin 发票, no lo puedes deducir.",
+      ex:{ zh:"请给我开发票。", py:"Qǐng gěi wǒ kāi fāpiào.", en:"Please issue me an invoice.", es:"Por favor emíteme la factura." } },
+    { id:"l5-16", zh:"现金流", py:"xiànjīnliú", en:"cash flow", es:"flujo de efectivo", tag:"finanzas",
+      mn:"现金 = dinero en efectivo (现 = presente/actual + 金 = oro) + 流 = fluir (lleva 氵 agua). ¡Los tres idiomas usan la MISMA metáfora del agua! cash FLOW = FLUJO de efectivo = 现金LIÚ. Una sola imagen, tres idiomas.",
+      ex:{ zh:"现金流是最大的风险。", py:"Xiànjīnliú shì zuì dà de fēngxiǎn.", en:"Cash flow is the biggest risk.", es:"El flujo de efectivo es el mayor riesgo." } },
+    { id:"l5-17", zh:"风险", py:"fēngxiǎn", en:"risk", es:"riesgo", tag:"gestión",
+      mn:"风 = viento + 险 = peligro/precipicio → «viento y precipicio» = RIESGO. Imagen marinera: navegar con viento junto al acantilado. En español «riesgo» también viene del mar (roca/escollo). Misma raíz mental. «fēng-xiǎn» ≈ «fong-shien».",
+      ex:{ zh:"这个方案风险太高。", py:"Zhège fāng'àn fēngxiǎn tài gāo.", en:"This option carries too much risk.", es:"Esta opción tiene demasiado riesgo." } },
+    { id:"l5-18", zh:"增长", py:"zēngzhǎng", en:"growth / to grow", es:"crecimiento / crecer", tag:"finanzas",
+      mn:"增 = aumentar (lleva 土 tierra: se añade tierra al montón) + 长 = largo/crecer. «zēng-zhǎng» ≈ «tseng-chang». Ojo: 长 tiene dos lecturas — cháng = largo, zhǎng = crecer. El tono cambia el significado: marca esta.",
+      ex:{ zh:"我们的增长比去年快。", py:"Wǒmen de zēngzhǎng bǐ qùnián kuài.", en:"Our growth is faster than last year.", es:"Nuestro crecimiento es más rápido que el año pasado." } },
+    { id:"l5-19", zh:"竞争", py:"jìngzhēng", en:"competition / to compete", es:"competencia / competir", tag:"comercial",
+      mn:"竞 = disputar + 争 = pelear por algo → COMPETENCIA. «jìng-zhēng» ≈ «ching-cheng». Falso amigo español: «competencia» significa también «capacidad/aptitud» (=能力 nénglì en chino, «competence» en inglés). No los confundas al traducir un CV.",
+      ex:{ zh:"这个行业竞争很激烈。", py:"Zhège hángyè jìngzhēng hěn jīliè.", en:"Competition in this industry is fierce.", es:"La competencia en esta industria es feroz." } },
+    { id:"l5-20", zh:"战略", py:"zhànlüè", en:"strategy", es:"estrategia", tag:"gestión",
+      mn:"战 = guerra + 略 = plan/esquema → «plan de guerra» = ESTRATEGIA. ¡Origen idéntico! «Estrategia» viene del griego «strategós» = general del ejército. Chino, español e inglés heredan la misma metáfora militar. Distingue: 战略 (estrategia, largo plazo) vs 战术 (táctica, corto plazo).",
+      ex:{ zh:"这是长期战略，不是战术。", py:"Zhè shì chángqī zhànlüè, bú shì zhànshù.", en:"This is long-term strategy, not tactics.", es:"Esto es estrategia de largo plazo, no táctica." } }
+  ]
+},
+{
+  id: 6,
+  code: "N6",
+  name: { es: "Negocios avanzado", en: "Advanced business", zh: "高级商务" },
+  cefr: "C1+",
+  goal: {
+    es: "Consejo, finanzas corporativas, legal, M&A y comercio internacional.",
+    en: "Board, corporate finance, legal, M&A and international trade.",
+    zh: "董事会、公司金融、法务、并购与国际贸易。"
+  },
+  items: [
+    { id:"l6-01", zh:"股东", py:"gǔdōng", en:"shareholder", es:"accionista", tag:"corporativo",
+      mn:"股 = porción/acción (originalmente «muslo», una PARTE del cuerpo) + 东 = este/anfitrión (el dueño de casa se sentaba al este) → «el dueño de una parte» = ACCIONISTA. Familia: 股票 (acción bursátil), 股份 (participación).",
+      ex:{ zh:"股东会在六月举行。", py:"Gǔdōnghuì zài liù yuè jǔxíng.", en:"The shareholders' meeting is in June.", es:"La asamblea de accionistas es en junio." } },
+    { id:"l6-02", zh:"董事会", py:"dǒngshìhuì", en:"board of directors", es:"consejo de administración", tag:"corporativo",
+      mn:"董事 = director/consejero + 会 = asamblea. «dǒng-shì-huì» ≈ «dong-shi-juei». Truco: si ya sabes 会议 (junta), 会 = «reunión» ya está en tu cabeza: 董事+会 = la junta de los directores. Nota: en México se dice «consejo de administración», no «tablero» ni «board».",
+      ex:{ zh:"董事会批准了这项投资。", py:"Dǒngshìhuì pīzhǔn le zhè xiàng tóuzī.", en:"The board approved this investment.", es:"El consejo aprobó esta inversión." } },
+    { id:"l6-03", zh:"并购", py:"bìnggòu", en:"M&A (mergers & acquisitions)", es:"fusiones y adquisiciones", tag:"corporativo",
+      mn:"并 = fusionar/juntar + 购 = adquirir/comprar. ¡Es literalmente M&A abreviado igual que en inglés! 并 = Merger, 购 = Acquisition. El chino comprime dos palabras en dos caracteres; el español necesita cuatro palabras.",
+      ex:{ zh:"公司正在进行并购谈判。", py:"Gōngsī zhèngzài jìnxíng bìnggòu tánpàn.", en:"The company is in M&A negotiations.", es:"La empresa está en negociaciones de fusión y adquisición." } },
+    { id:"l6-04", zh:"尽职调查", py:"jìnzhí diàochá", en:"due diligence", es:"debida diligencia / auditoría de compra", tag:"legal",
+      mn:"尽职 = cumplir con el deber («due diligence» literal) + 调查 = investigar. Los tres idiomas dicen lo mismo: «investigar cumpliendo tu deber». Se abrevia DD en los tres. «jìn-zhí diào-chá» ≈ «yin-chi diao-cha».",
+      ex:{ zh:"尽职调查需要六个星期。", py:"Jìnzhí diàochá xūyào liù ge xīngqī.", en:"Due diligence will take six weeks.", es:"La debida diligencia tomará seis semanas." } },
+    { id:"l6-05", zh:"估值", py:"gūzhí", en:"valuation", es:"valuación / valoración", tag:"finanzas",
+      mn:"估 = estimar + 值 = valor → «estimar el valor» = VALUACIÓN. «gū-zhí» ≈ «gu-chi». Nota de uso: en México se dice «valuación»; en España «valoración». En inglés cuidado: «valuation» (cuánto vale) ≠ «evaluation» (qué tan bueno es) = 评估.",
+      ex:{ zh:"他们的估值太高了。", py:"Tāmen de gūzhí tài gāo le.", en:"Their valuation is too high.", es:"Su valuación está demasiado alta." } },
+    { id:"l6-06", zh:"资产负债表", py:"zīchǎn fùzhài biǎo", en:"balance sheet", es:"balance general / estado de situación financiera", tag:"finanzas",
+      mn:"资产 (activos) + 负债 (pasivos) + 表 (tabla) = «tabla de activos y pasivos». ¡El chino es MÁS claro que los otros dos! El inglés dice «balance sheet» y el español «balance general» sin decir de qué; el chino te dice exactamente qué contiene. Bonus: reconoces 负 de 负责 (cargar) → 负债 = «cargar deuda».",
+      ex:{ zh:"请看资产负债表的第二页。", py:"Qǐng kàn zīchǎn fùzhài biǎo de dì-èr yè.", en:"Please look at page two of the balance sheet.", es:"Por favor vean la página dos del balance general." } },
+    { id:"l6-07", zh:"损益表", py:"sǔnyì biǎo", en:"income statement / P&L", es:"estado de resultados", tag:"finanzas",
+      mn:"损 (pérdida) + 益 (beneficio) + 表 (tabla) = «tabla de pérdidas y ganancias». Es EXACTAMENTE el inglés «P&L» (Profit & Loss). El español «estado de resultados» es el que se aleja: memorízalo por el par ZH-EN.",
+      ex:{ zh:"损益表显示我们盈利了。", py:"Sǔnyì biǎo xiǎnshì wǒmen yínglì le.", en:"The P&L shows we were profitable.", es:"El estado de resultados muestra que fuimos rentables." } },
+    { id:"l6-08", zh:"合规", py:"héguī", en:"compliance", es:"cumplimiento normativo", tag:"legal",
+      mn:"合 = ajustarse a (el mismo 合 de 合同 «contrato») + 规 = norma/regla → «ajustarse a la norma» = CUMPLIMIENTO. Dos caracteres contra dos palabras en español. «hé-guī» ≈ «je-guei».",
+      ex:{ zh:"合规部门必须先审核。", py:"Héguī bùmén bìxū xiān shěnhé.", en:"Compliance must review it first.", es:"Cumplimiento debe revisarlo primero." } },
+    { id:"l6-09", zh:"知识产权", py:"zhīshi chǎnquán", en:"intellectual property (IP)", es:"propiedad intelectual", tag:"legal",
+      mn:"知识 (conocimiento) + 产权 (derechos de propiedad) = «derechos de propiedad del conocimiento». Traducción calcada palabra por palabra en los tres idiomas. Si separas 产 (producir/bien) + 权 (derecho), reconoces 权 en 授权 (autorizar) y 股权 (derechos accionarios).",
+      ex:{ zh:"知识产权归我们所有。", py:"Zhīshi chǎnquán guī wǒmen suǒyǒu.", en:"The intellectual property belongs to us.", es:"La propiedad intelectual nos pertenece." } },
+    { id:"l6-10", zh:"保密协议", py:"bǎomì xiéyì", en:"NDA (non-disclosure agreement)", es:"acuerdo de confidencialidad", tag:"legal",
+      mn:"保 (proteger) + 密 (secreto) + 协议 (acuerdo) = «acuerdo de proteger el secreto». 协议 = acuerdo (más blando que 合同 = contrato): diferencia jurídica real en los tres idiomas. «bǎo-mì xié-yì» ≈ «bao-mi shie-i».",
+      ex:{ zh:"签保密协议以后我们再谈细节。", py:"Qiān bǎomì xiéyì yǐhòu wǒmen zài tán xìjié.", en:"We'll discuss details after signing the NDA.", es:"Hablamos de los detalles después de firmar el acuerdo de confidencialidad." } },
+    { id:"l6-11", zh:"违约", py:"wéiyuē", en:"breach of contract / default", es:"incumplimiento", tag:"legal",
+      mn:"违 = violar/ir contra + 约 = pacto → «ir contra el pacto» = INCUMPLIR. «wéi-yuē» ≈ «uei-yüe». 违约金 = pena convencional / penalty. Ojo inglés: «default» también significa «valor por defecto» en software (默认). Contexto manda.",
+      ex:{ zh:"如果违约，需要付违约金。", py:"Rúguǒ wéiyuē, xūyào fù wéiyuējīn.", en:"In case of breach, a penalty applies.", es:"En caso de incumplimiento, aplica una pena convencional." } },
+    { id:"l6-12", zh:"仲裁", py:"zhòngcái", en:"arbitration", es:"arbitraje", tag:"legal",
+      mn:"仲 = intermedio/el de en medio + 裁 = juzgar/cortar → «el de en medio que decide» = ÁRBITRO. Igual que en español «árbitro» es el tercero neutral. Cláusula típica en contratos China-México: define SIEMPRE la sede de 仲裁.",
+      ex:{ zh:"争议通过仲裁解决。", py:"Zhēngyì tōngguò zhòngcái jiějué.", en:"Disputes are resolved through arbitration.", es:"Las controversias se resuelven mediante arbitraje." } },
+    { id:"l6-13", zh:"关税", py:"guānshuì", en:"tariff / customs duty", es:"arancel", tag:"comercio",
+      mn:"关 = aduana/paso fronterizo (海关 = aduana) + 税 = impuesto → «impuesto de aduana» = ARANCEL. Nota: el español distingue «arancel» (frontera) de «impuesto» (interno); el inglés «tariff» vs «tax». El chino hace la misma distinción con 关税 vs 税.",
+      ex:{ zh:"新关税影响了我们的成本。", py:"Xīn guānshuì yǐngxiǎng le wǒmen de chéngběn.", en:"The new tariffs affected our costs.", es:"Los nuevos aranceles afectaron nuestros costos." } },
+    { id:"l6-14", zh:"汇率", py:"huìlǜ", en:"exchange rate", es:"tipo de cambio", tag:"finanzas",
+      mn:"汇 = remesar/convertir divisas (lleva 氵 agua: el dinero fluye entre países) + 率 = tasa. ¡Ya conocías 率 de 效率 (eficiencia)! Un solo carácter te dio: 效率, 汇率, 利率 (tasa de interés). Ese es el poder de aprender por componentes.",
+      ex:{ zh:"人民币对比索的汇率变了。", py:"Rénmínbì duì bǐsuǒ de huìlǜ biàn le.", en:"The yuan-peso exchange rate has changed.", es:"El tipo de cambio yuan-peso cambió." } },
+    { id:"l6-15", zh:"供应链", py:"gōngyìngliàn", en:"supply chain", es:"cadena de suministro", tag:"cadena",
+      mn:"供应 (suministrar, ya lo viste en 供应商 «proveedor») + 链 = cadena (lleva 钅metal: eslabones de metal). ¡Misma metáfora exacta en los tres! supply CHAIN = CADENA de suministro = 供应LIÀN.",
+      ex:{ zh:"供应链的问题还没解决。", py:"Gōngyìngliàn de wèntí hái méi jiějué.", en:"The supply chain issues aren't resolved yet.", es:"Los problemas de la cadena de suministro aún no se resuelven." } },
+    { id:"l6-16", zh:"上市", py:"shàngshì", en:"to go public / IPO", es:"salir a bolsa / cotizar en bolsa", tag:"corporativo",
+      mn:"上 = subir + 市 = mercado (el mismo 市 de 市场) → «subir al mercado» = SALIR A BOLSA. Compara las imágenes: el chino SUBE al mercado, el español SALE a la bolsa, el inglés se vuelve PÚBLICO. Tres metáforas distintas para el mismo hecho: memorízalas como un trío contrastante.",
+      ex:{ zh:"这家公司明年上市。", py:"Zhè jiā gōngsī míngnián shàngshì.", en:"This company goes public next year.", es:"Esta empresa sale a bolsa el próximo año." } },
+    { id:"l6-17", zh:"融资", py:"róngzī", en:"financing / fundraising", es:"financiamiento / levantar capital", tag:"finanzas",
+      mn:"融 = fundir/hacer fluir + 资 = recursos (el mismo 资 de 投资 «inversión») → «hacer fluir los recursos». Distingue el par: 投资 = poner dinero (invertir, lado del inversionista); 融资 = conseguir dinero (levantar capital, lado de la empresa). Mismo 资, lados opuestos de la mesa.",
+      ex:{ zh:"我们在做B轮融资。", py:"Wǒmen zài zuò B lún róngzī.", en:"We're raising a Series B.", es:"Estamos levantando una ronda Serie B." } },
+    { id:"l6-18", zh:"利益相关者", py:"lìyì xiāngguānzhě", en:"stakeholder", es:"parte interesada / grupo de interés", tag:"gestión",
+      mn:"利益 (interés/beneficio, con el 利 de 利润 «utilidad») + 相关 (relacionado) + 者 (el que) = «el que está relacionado con el interés». El chino DESCRIBE lo que el inglés esconde en la metáfora «stake-holder» (el que sostiene la estaca). El español calca al chino: «parte interesada».",
+      ex:{ zh:"我们要听所有利益相关者的意见。", py:"Wǒmen yào tīng suǒyǒu lìyì xiāngguānzhě de yìjiàn.", en:"We need to hear from all stakeholders.", es:"Necesitamos escuchar a todas las partes interesadas." } },
+    { id:"l6-19", zh:"可持续", py:"kěchíxù", en:"sustainable", es:"sostenible / sustentable", tag:"gestión",
+      mn:"可 (poder, el de 可以) + 持 (sostener con la mano 扌) + 续 (continuar) = «que se puede seguir sosteniendo». ¡Traducción literal perfecta de SUS-TENER y SUS-TAIN! Los tres idiomas: sostener + continuar. Prefijo productivo: 可 + verbo = «-able» (可用 = usable, 可靠 = confiable).",
+      ex:{ zh:"这个模式不可持续。", py:"Zhège móshì bù kě chíxù.", en:"This model is not sustainable.", es:"Este modelo no es sostenible." } },
+    { id:"l6-20", zh:"授权", py:"shòuquán", en:"to authorize / to delegate / license", es:"autorizar / delegar / licenciar", tag:"legal",
+      mn:"授 = otorgar/conferir + 权 = derecho/poder (el mismo 权 de 知识产权) → «conferir el derecho» = AUTORIZAR. Cubre TRES sentidos que el español separa: autorizar (permiso), delegar (poder) y licenciar (uso de marca). Al traducir un contrato, pregunta siempre cuál de los tres.",
+      ex:{ zh:"我没有授权签这份合同。", py:"Wǒ méiyǒu shòuquán qiān zhè fèn hétong.", en:"I'm not authorized to sign this contract.", es:"No estoy autorizado para firmar este contrato." } }
+  ]
+}
+];
+
+</script>
+<script>
+/* ============================================================
+   RECURSOS DE APOYO POR NIVEL
+   type: lectura | video | app | tema
+   why: { es, en, zh }  → se muestra en el idioma base elegido
+   Los enlaces "search" abren una búsqueda (nunca se rompen).
+   ============================================================ */
+window.RESOURCES = {
+  1: [
+    { type:"app", title:"HelloChinese", lang:"ZH", url:"https://www.hellochinese.cc/",
+      why:{
+        es:"La mejor app para los primeros 300 caracteres: tonos, trazos y audio nativo. Empieza aquí si el chino es tu punto de partida.",
+        en:"The best app for your first 300 characters: tones, stroke order and native audio. Start here if Chinese is your anchor.",
+        zh:"学习前 300 个汉字最好的应用：声调、笔顺、母语发音。若以中文为起点，从这里开始。"} },
+    { type:"video", title:"Yoyo Chinese — Pinyin Chart interactiva", lang:"ZH",
+      url:"https://www.yoyochinese.com/chinese-learning-tools/Mandarin-Chinese-pronunciation-lesson/pinyin-chart-table",
+      why:{
+        es:"Los 4 tonos explicados por sílaba con audio. Dedícale 3 sesiones ANTES de memorizar vocabulario: si el tono entra mal, entra mal para siempre.",
+        en:"All four tones, syllable by syllable, with audio. Spend three sessions here BEFORE memorising vocabulary: a tone learned wrong stays wrong.",
+        zh:"逐音节讲解四声，配母语音频。背单词之前先花三节课：声调一旦学错，很难改回来。"} },
+    { type:"lectura", title:"BBC Learning English — Lower-intermediate", lang:"EN",
+      url:"https://www.bbc.co.uk/learningenglish",
+      why:{
+        es:"Textos cortos con audio y transcripción. Lee en voz alta el mismo texto 3 veces: es el ejercicio con mejor retorno del nivel.",
+        en:"Short texts with audio and transcript. Read the same text aloud three times — the highest-return exercise at this level.",
+        zh:"配音频和文字稿的短篇课文。同一篇朗读三遍：本级性价比最高的练习。"} },
+    { type:"tema", title:"Los 4 tonos y por qué el español ayuda", lang:"ZH",
+      url:"https://www.youtube.com/results?search_query=mandarin+tones+explained+for+spanish+speakers",
+      why:{
+        es:"El español ya usa tono para distinguir sentido (papá/papa, ¿comió?/comió). Reutiliza ese oído: el 2º tono chino es tu entonación de pregunta y el 4º es tu tono de orden.",
+        en:"Spanish already uses pitch to change meaning (papá/papa). Reuse that ear: Mandarin's 2nd tone is your question intonation, the 4th is your command tone.",
+        zh:"西班牙语本来就用重音区分词义（papá / papa）。借用这个听感：汉语二声像疑问语调，四声像命令语气。"} }
+  ],
+  2: [
+    { type:"lectura", title:"Du Chinese — historias graduadas", lang:"ZH", url:"https://www.duchinese.net/",
+      why:{
+        es:"Lecturas con pinyin y traducción tocando la palabra. Nivel Newbie/Elementary te calza exacto aquí. 10 minutos diarios > 1 hora el domingo.",
+        en:"Graded readings with tap-for-pinyin and translation. Newbie/Elementary fits this level exactly. Ten minutes daily beats one hour on Sunday.",
+        zh:"分级读物，点词即显拼音和翻译。Newbie/Elementary 正好对应本级。每天十分钟胜过周日一小时。"} },
+    { type:"video", title:"Peppa Pig / 小猪佩奇 en chino", lang:"ZH",
+      url:"https://www.youtube.com/results?search_query=小猪佩奇+中文+全集",
+      why:{
+        es:"Suena a broma y no lo es: vocabulario de casa, comida y familia con contexto visual. Es el nivel exacto de N2.",
+        en:"It sounds like a joke and isn't: home, food and family vocabulary with visual context. Exactly the N2 register.",
+        zh:"看似玩笑，其实很有效：家庭、饮食、亲属词汇配画面语境，难度正好是 N2。"} },
+    { type:"lectura", title:"VOA Learning English — Level 1", lang:"EN", url:"https://learningenglish.voanews.com/",
+      why:{
+        es:"Inglés con vocabulario controlado (1500 palabras) y audio a velocidad reducida. Ideal para pasar del ZH al EN sin ahogarte.",
+        en:"Controlled vocabulary (1,500 words) with slowed audio. The gentlest bridge from Chinese into English.",
+        zh:"限定词汇（1500 词）＋慢速音频。从中文过渡到英语最平缓的桥梁。"} },
+    { type:"tema", title:"Los clasificadores (量词)", lang:"ZH",
+      url:"https://www.youtube.com/results?search_query=chinese+measure+words+measure+word+ge",
+      why:{
+        es:"En chino no dices «tres clientes», dices «tres [clasificador] clientes» (三个客户). El español tiene el mismo fenómeno escondido: «tres CABEZAS de ganado», «dos HOJAS de papel». No es raro, ya lo haces.",
+        en:"Chinese needs a measure word: 三个客户, not «three clients». English hides the same thing: «three HEAD of cattle», «two SHEETS of paper». You already do this.",
+        zh:"量词并不特殊：英语的 three HEAD of cattle、西班牙语的 tres CABEZAS de ganado 是同一个现象，只是使用范围更窄。"} }
+  ],
+  3: [
+    { type:"video", title:"Mandarin Corner — diálogos con subtítulos ZH/PY/EN", lang:"ZH",
+      url:"https://www.youtube.com/results?search_query=Mandarin+Corner+conversation+subtitles",
+      why:{
+        es:"Conversaciones reales a velocidad natural, con los tres niveles de subtítulo. Aquí es donde tu oído da el salto a B1.",
+        en:"Real conversations at natural speed with three subtitle layers. This is where your listening jumps to B1.",
+        zh:"自然语速的真实对话，三层字幕。听力在这里跨入 B1。"} },
+    { type:"lectura", title:"The Chairman's Bao — noticias graduadas HSK 3-4", lang:"ZH",
+      url:"https://www.thechairmansbao.com/",
+      why:{
+        es:"Noticias reales reescritas por nivel HSK. Empieza a leer sobre economía y empresas: te prepara el terreno para N4-N5.",
+        en:"Real news rewritten by HSK level. Start reading business and economics here — it prepares the ground for N4-N5.",
+        zh:"按 HSK 等级改写的真实新闻。从经济和企业类文章入手，为 N4-N5 打底。"} },
+    { type:"lectura", title:"BBC Learning English — 6 Minute English", lang:"EN",
+      url:"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english",
+      why:{
+        es:"Seis minutos, dos hablantes, transcripción completa. Método: escucha sin texto → escucha con texto → resume en español en 3 líneas.",
+        en:"Six minutes, two speakers, full transcript. Method: listen without the text → listen with it → summarise in three lines.",
+        zh:"六分钟、两位说话人、全文稿。方法：先裸听 → 再对照文稿 → 用三句话复述。"} },
+    { type:"tema", title:"La partícula 了 (le)", lang:"ZH",
+      url:"https://www.youtube.com/results?search_query=chinese+particle+le+explained",
+      why:{
+        es:"El terror de todo hispanohablante. Clave mental: 了 NO es «pasado», es «cambio de estado». Piénsalo como el «ya» del español: «ya comí», «ya se puso caro». Con esa equivalencia aciertas el 80% de los casos.",
+        en:"The classic stumbling block. Key idea: 了 is not «past tense», it marks a CHANGE OF STATE — closest to Spanish «ya» or English «now/already». That mapping gets you 80% of cases right.",
+        zh:"学习者最容易混淆的一点：了 不等于过去时，而是标记「状态改变」，最接近西班牙语的 ya、英语的 already。掌握这一点可解决八成用例。"} }
+  ],
+  4: [
+    { type:"lectura", title:"Business English Pod — email y reuniones", lang:"EN",
+      url:"https://www.businessenglishpod.com/",
+      why:{
+        es:"Lecciones con audio de reuniones, llamadas y correos reales. Es el estándar de facto para inglés de oficina.",
+        en:"Audio lessons built on real meetings, calls and emails. The de facto standard for office English.",
+        zh:"以真实会议、电话和邮件为素材的音频课程。职场英语的事实标准。"} },
+    { type:"video", title:"商务汉语 — chino de oficina", lang:"ZH",
+      url:"https://www.youtube.com/results?search_query=商务汉语+办公室+会话+business+chinese",
+      why:{
+        es:"Diálogos de oficina: presentarte, pedir una junta, dar seguimiento. Copia frases completas, no palabras sueltas.",
+        en:"Office dialogues: introducing yourself, requesting a meeting, following up. Copy whole phrases, not single words.",
+        zh:"办公室对话：自我介绍、约会议、跟进事项。整句整句地背，不要只背词。"} },
+    { type:"tema", title:"El correo formal en 3 idiomas", lang:"ALL",
+      url:"https://www.bbc.co.uk/learningenglish/english/features/english-at-work",
+      why:{
+        es:"Estructuras fijas que debes memorizar como bloques: 尊敬的… ≈ «Dear…» ≈ «Estimado…»; 请确认 ≈ «Please confirm» ≈ «Favor de confirmar»; 期待您的回复 ≈ «Looking forward to your reply» ≈ «Quedo atento a su respuesta».",
+        en:"Fixed blocks worth memorising whole: 尊敬的… ≈ «Dear…» ≈ «Estimado…»; 请确认 ≈ «Please confirm»; 期待您的回复 ≈ «Looking forward to your reply» ≈ «Quedo atento a su respuesta».",
+        zh:"整块记忆的固定表达：尊敬的… ≈ Dear… ≈ Estimado…；请确认 ≈ Please confirm ≈ Favor de confirmar；期待您的回复 ≈ Looking forward to your reply。"} },
+    { type:"tema", title:"Registro formal vs informal", lang:"ALL",
+      url:"https://www.youtube.com/results?search_query=chinese+formal+vs+informal+nin+vs+ni",
+      why:{
+        es:"El chino marca respeto con 您 y con verbos como 请/敬请. El español con usted/tú. El inglés casi no marca y lo compensa con rodeos («would you mind…»). Traducir literal entre los tres te hace sonar grosero o servil.",
+        en:"Chinese marks respect with 您 and verbs like 请/敬请; Spanish with usted/tú; English barely marks it and compensates with hedging («would you mind…»). Translating literally across the three makes you sound rude or servile.",
+        zh:"中文用「您」和「请/敬请」表敬意，西班牙语用 usted/tú，英语几乎不标记而靠迂回句式（would you mind…）。三者若直译，不是显得无礼，就是显得过分谦卑。"} }
+  ],
+  5: [
+    { type:"lectura", title:"Caixin Global / 财新", lang:"ZH/EN", url:"https://www.caixinglobal.com/",
+      why:{
+        es:"Periodismo financiero chino con edición en inglés. Lee la MISMA nota en chino y en inglés: es el ejercicio de traducción profesional más eficiente que existe.",
+        en:"Chinese financial journalism with an English edition. Read the SAME story in both languages — the most efficient professional translation drill there is.",
+        zh:"中英双版的财经报道。同一篇文章对照阅读，是最高效的专业翻译训练。"} },
+    { type:"lectura", title:"El Economista / Expansión", lang:"ES", url:"https://www.eleconomista.com.mx/",
+      why:{
+        es:"Para fijar el vocabulario financiero en español de México (utilidad, flujo de efectivo, cotización) y no calcar del inglés.",
+        en:"To lock in Mexican-Spanish finance vocabulary (utilidad, flujo de efectivo, cotización) instead of calquing from English.",
+        zh:"用来固定墨西哥西班牙语的财经词汇（utilidad、flujo de efectivo、cotización），避免从英语硬译。"} },
+    { type:"video", title:"商务谈判 — simulacros de negociación", lang:"ZH",
+      url:"https://www.youtube.com/results?search_query=business+chinese+negotiation+商务谈判+对话",
+      why:{
+        es:"Simulacros de negociación: cotizar, pedir descuento, cerrar. Practica en voz alta las réplicas del comprador Y del vendedor.",
+        en:"Negotiation role-plays: quoting, asking for a discount, closing. Practise both the buyer's AND the seller's lines out loud.",
+        zh:"谈判情景演练：报价、要折扣、成交。买方和卖方的台词都要朗读练习。"} },
+    { type:"tema", title:"关系 (guānxi) y cómo se negocia distinto", lang:"ALL",
+      url:"https://www.youtube.com/results?search_query=guanxi+chinese+business+culture+negotiation",
+      why:{
+        es:"En China la relación precede al contrato; en México también más de lo que se admite; en EE.UU. el contrato precede a la relación. Entender esto vale más que 100 palabras nuevas.",
+        en:"In China the relationship precedes the contract; in Mexico more than people admit; in the US the contract precedes the relationship. Understanding this is worth more than 100 new words.",
+        zh:"在中国，关系先于合同；在墨西哥也比人们承认的更甚；在美国则是合同先于关系。理解这一点胜过一百个生词。"} },
+    { type:"tema", title:"Porcentajes y el 折扣", lang:"ZH",
+      url:"https://www.youtube.com/results?search_query=chinese+numbers+percentages+discount+zhe",
+      why:{
+        es:"打八折 = pagas el 80%, NO 8% de descuento. Y 百分之二十 = 20%. Practica leer cifras en voz alta hasta que salgan automáticas: en una negociación no hay tiempo de calcular.",
+        en:"打八折 means you PAY 80% — not 8% off. And 百分之二十 = 20%. Drill numbers aloud until they're automatic: in a negotiation there's no time to compute.",
+        zh:"打八折是「付原价的 80%」，不是「减 8%」；百分之二十 = 20%。数字要练到脱口而出——谈判现场没有时间换算。"} }
+  ],
+  6: [
+    { type:"lectura", title:"Harvard Business Review", lang:"ES/EN", url:"https://hbr.org/",
+      why:{
+        es:"Lee el artículo en inglés y luego el mismo en español: te da el par exacto de terminología directiva sin inventarte traducciones.",
+        en:"Read an article in English, then the same one in Spanish: it hands you the exact executive-terminology pairs instead of you inventing translations.",
+        zh:"先读英文原文，再读西班牙语版：直接得到管理术语的对应词，不必自己臆造译法。"} },
+    { type:"lectura", title:"第一财经 / 财新 — informes corporativos", lang:"ZH", url:"https://www.yicai.com/",
+      why:{
+        es:"Nivel real: comunicados de resultados, fusiones, salidas a bolsa. Empieza por los titulares y el primer párrafo, no intentes la nota completa.",
+        en:"The real thing: earnings releases, mergers, IPOs. Start with headlines and first paragraphs — don't attempt whole articles yet.",
+        zh:"真实材料：业绩公告、并购、上市。先读标题和首段，不要一上来就啃全文。"} },
+    { type:"lectura", title:"Informes anuales bilingües (HKEX)", lang:"ZH/EN", url:"https://www.hkexnews.hk/",
+      why:{
+        es:"Las empresas listadas en Hong Kong publican el MISMO informe en chino e inglés, párrafo por párrafo. Es un corpus paralelo gratuito de nivel profesional — insuperable para 资产负债表, 损益表 y 合规.",
+        en:"Hong Kong listed companies publish the SAME report in Chinese and English, paragraph by paragraph. A free professional-grade parallel corpus — unbeatable for 资产负债表, 损益表 and 合规.",
+        zh:"港股上市公司逐段发布中英双语年报，是免费的专业级平行语料——练资产负债表、损益表、合规术语无出其右。"} },
+    { type:"video", title:"CGTN / Bloomberg — entrevistas de negocios", lang:"ZH/EN",
+      url:"https://www.youtube.com/results?search_query=CGTN+business+interview+CEO+中文",
+      why:{
+        es:"Escucha a ejecutivos reales. Objetivo del nivel: entender una entrevista de 5 minutos sin subtítulos y poder resumirla en los otros dos idiomas.",
+        en:"Listen to real executives. Level goal: follow a five-minute interview without subtitles and summarise it in the other two languages.",
+        zh:"听真实高管讲话。本级目标：无字幕听懂五分钟访谈，并用另外两种语言复述。"} },
+    { type:"tema", title:"Traducción de cláusulas contractuales", lang:"ALL", url:"https://www.hkexnews.hk/",
+      why:{
+        es:"Toma un contrato tipo (NDA) y tradúcelo ZH→ES→EN→ZH. Cuando el texto vuelve al punto de partida y sigue significando lo mismo, dominas el nivel. Ojo con 违约金 (pena convencional ≠ «penalty» en todo contexto).",
+        en:"Take a standard NDA and translate it ZH→ES→EN→ZH. When the text comes back around still meaning the same thing, you've mastered the level. Watch 违约金 — «pena convencional» is not «penalty» in every context.",
+        zh:"拿一份标准保密协议做 中→西→英→中 的循环翻译。绕一圈回来意思不变，本级即算过关。注意 违约金 在不同法域并不总等于 penalty。"} },
+    { type:"tema", title:"Presentar ante un consejo", lang:"ALL",
+      url:"https://www.youtube.com/results?search_query=executive+presentation+board+SCQA+structure",
+      why:{
+        es:"Estructura universal: situación → complicación → pregunta → respuesta (SCQA). Practica el mismo pitch de 3 minutos en los tres idiomas. Lo que no puedes decir en 3 minutos, no lo entiendes.",
+        en:"Universal structure: situation → complication → question → answer (SCQA). Practise the same three-minute pitch in all three languages. What you can't say in three minutes, you don't understand.",
+        zh:"通用结构：情境 → 冲突 → 问题 → 答案（SCQA）。同一段三分钟陈述用三种语言各讲一遍。三分钟讲不清，说明还没想清。"} }
+  ]
+};
+
+</script>
+<script>
+/* ============================================================
+   ZH-EN-SP · Tutor trilingüe con mnemotecnia
+   - Interfaz completa en español / inglés / 中文 (selector "idioma base")
+   - Repaso espaciado (cajas de Leitner)
+   - Quizzes que se adaptan al idioma base, con desbloqueo de nivel (80%)
+   - Progreso persistente en localStorage
+   ============================================================ */
+(function () {
+"use strict";
+
+/* ---------- datos ---------- */
+var LEVELS = (window.LEVELS_A || []).concat(window.LEVELS_B || []);
+var RES = window.RESOURCES || {};
+var I = window.I18N;
+var ALL = [];
+LEVELS.forEach(function (lv) { lv.items.forEach(function (it) { it.level = lv.id; ALL.push(it); }); });
+
+/* ---------- constantes ---------- */
+var KEY = "zhensp.progress.v1";
+var INTERVALS = [0, 1, 2, 4, 8, 16, 35];   // días por caja de Leitner
+var MAX_BOX = INTERVALS.length - 1;
+var PASS = 0.8;                             // 80% para desbloquear el siguiente nivel
+var QUIZ_LEN = 10;
+var LOCALE = { es: "es-MX", en: "en-US", zh: "zh-CN" };
+var SPEECH = { zh: "zh-CN", en: "en-US", es: "es-MX" };
+
+/* Direcciones de pregunta según el idioma base (el idioma que ya dominas) */
+var DIRS = {
+  es: [["zh","es"],["es","zh"],["en","es"],["zh","py"],["zh","en"]],
+  en: [["zh","en"],["en","zh"],["es","en"],["zh","py"],["zh","es"]],
+  zh: [["zh","es"],["es","zh"],["en","es"],["zh","py"],["es","en"]]
+};
+
+/* ---------- i18n ---------- */
+function t(key, vars) {
+  var dict = I.ui[S && S.base ? S.base : "es"] || I.ui.es;
+  var s = dict[key] != null ? dict[key] : (I.ui.es[key] != null ? I.ui.es[key] : key);
+  if (vars) s = s.replace(/\{(\w+)\}/g, function (m, k) { return vars[k] != null ? vars[k] : m; });
+  return s;
+}
+function langName(code) { return (I.lang[S.base] || I.lang.es)[code] || code; }
+function tagName(tag) {
+  if (S.base === "es") return tag;
+  var map = I.tags[S.base] || {};
+  return map[tag] || tag;
+}
+function resType(type) {
+  if (S.base === "es") return type;
+  return (I.restype[S.base] || {})[type] || type;
+}
+function lvName(lv) { return lv.name[S.base] || lv.name.es; }
+function lvGoal(lv) { return lv.goal[S.base] || lv.goal.es; }
+function resWhy(r) { return (r.why && (r.why[S.base] || r.why.es)) || ""; }
+
+/* ---------- utilidades ---------- */
+function $(s) { return document.querySelector(s); }
+function all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+function ymd(d) {                    // fecha LOCAL (no UTC): el día no debe cambiar a media tarde
+  var m = d.getMonth() + 1, day = d.getDate();
+  return d.getFullYear() + "-" + (m < 10 ? "0" : "") + m + "-" + (day < 10 ? "0" : "") + day;
+}
+function today() { return ymd(new Date()); }
+function addDays(n) { var d = new Date(); d.setDate(d.getDate() + n); return ymd(d); }
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+  });
+}
+function shuffle(a) {
+  a = a.slice();
+  for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var x = a[i]; a[i] = a[j]; a[j] = x; }
+  return a;
+}
+function pick(a, n) { return shuffle(a).slice(0, n); }
+function level(id) { for (var i = 0; i < LEVELS.length; i++) if (LEVELS[i].id === id) return LEVELS[i]; return LEVELS[0]; }
+
+/* ---------- estado ---------- */
+var S;
+function fresh() {
+  return { v: 1, base: "es", level: 1, unlocked: 1, xp: 0,
+           streak: { count: 0, last: null }, cards: {}, quizzes: [] };
+}
+function load() {
+  try { var raw = localStorage.getItem(KEY); S = raw ? JSON.parse(raw) : fresh(); }
+  catch (e) { S = fresh(); }
+  var f = fresh();
+  for (var k in f) if (!(k in S)) S[k] = f[k];
+  if (!I.ui[S.base]) S.base = "es";
+}
+function save() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(S));
+    $("#savedAt").textContent = t("foot.saved", {
+      t: new Date().toLocaleTimeString(LOCALE[S.base] || "es-MX", { hour: "2-digit", minute: "2-digit" })
+    });
+  } catch (e) { $("#savedAt").textContent = t("foot.saveFail"); }
+}
+function markStudiedToday() {
+  var td = today();
+  if (S.streak.last !== td) {
+    S.streak.count = (S.streak.last === addDays(-1) || S.streak.last === null) ? (S.streak.count || 0) + 1 : 1;
+    S.streak.last = td;
+  }
+}
+function card(id) {                 // escritura: crea la ficha si no existe
+  if (!S.cards[id]) S.cards[id] = { box: 0, due: today(), seen: 0, ok: 0, bad: 0 };
+  return S.cards[id];
+}
+function peek(id) {                 // lectura: NO crea nada (ver una tarjeta no la agenda)
+  return S.cards[id] || { box: 0, due: null, seen: 0, ok: 0, bad: 0 };
+}
+function grade(id, g) {             // g: 0 = no la sé · 1 = casi · 2 = la sé
+  var c = card(id);
+  c.seen++;
+  if (g === 2) { c.box = Math.min(MAX_BOX, c.box + 1); c.ok++; S.xp += 10; }
+  else if (g === 1) { c.box = Math.max(1, c.box); S.xp += 5; }
+  else { c.box = 0; c.bad++; S.xp += 2; }
+  c.due = addDays(INTERVALS[c.box]);
+  markStudiedToday();
+  save(); paintHeader();
+}
+function dueList() {
+  var td = today();
+  return ALL.filter(function (it) {
+    if (it.level > S.unlocked) return false;
+    var c = S.cards[it.id];
+    return c && c.due <= td;
+  });
+}
+function mastery(lvId) {
+  var items = level(lvId).items, sum = 0;
+  items.forEach(function (it) { sum += peek(it.id).box / MAX_BOX; });
+  return items.length ? sum / items.length : 0;
+}
+
+/* ---------- audio ---------- */
+function speak(text, lang) {
+  if (!("speechSynthesis" in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = SPEECH[lang] || "zh-CN";
+    u.rate = lang === "zh" ? 0.85 : 0.95;
+    window.speechSynthesis.speak(u);
+  } catch (e) {}
+}
+function wireSpeak(root) {
+  all(".spk", root).forEach(function (b) {
+    b.onclick = function (e) { e.stopPropagation(); speak(b.dataset.say, b.dataset.lang); };
+  });
+}
+function spkBtn(text, lang, label) {
+  return "<button class='spk' data-say='" + esc(text) + "' data-lang='" + lang + "'>🔊" +
+         (label ? " " + esc(label) : "") + "</button>";
+}
+function mnemoBox(text, marginTop) {
+  return "<div class='mnemo'" + (marginTop ? " style='margin-top:12px'" : "") + "><h4>" +
+         t("ui.mnemo") + "</h4><p>" + esc(text) + "</p></div>";
+}
+
+/* ---------- cromo estático (etiquetas fijas de la página) ---------- */
+function applyChrome() {
+  document.documentElement.lang = S.base;
+  all("[data-i18n]").forEach(function (el) { el.textContent = t(el.dataset.i18n); });
+  $("#baseLang").value = S.base;
+}
+function paintHeader() {
+  $("#xpVal").textContent = S.xp;
+  $("#streakVal").textContent = S.streak.count || 0;
+  var d = dueList().length;
+  $("#dueBadge").textContent = d ? d : "";
+}
+function paintLevels() {
+  var box = $("#levelPicker"); box.innerHTML = "";
+  LEVELS.forEach(function (lv) {
+    var locked = lv.id > S.unlocked;
+    var b = document.createElement("button");
+    b.className = "lvbtn" + (lv.id === S.level ? " on" : "") + (locked ? " locked" : "");
+    b.innerHTML = "<b>" + lv.code + "</b> " + esc(lvName(lv)) +
+                  " <span class='cefr'>" + lv.cefr + "</span>" +
+                  (locked ? " 🔒" : " <span class='cefr'>" + Math.round(mastery(lv.id) * 100) + "%</span>");
+    if (locked) { b.title = t("ui.lockedHint"); b.disabled = true; }
+    else b.onclick = function () { S.level = lv.id; deckPos = 0; revealed = false; quiz = null; save(); paintLevels(); render(); };
+    box.appendChild(b);
+  });
+  $("#levelGoal").textContent = "🎯 " + lvGoal(level(S.level));
+}
+
+/* ---------- vista: APRENDER ---------- */
+var deckPos = 0, revealed = false;
+function deck() { return level(S.level).items; }
+
+function renderLearn() {
+  var items = deck();
+  if (deckPos >= items.length) deckPos = 0;
+  var it = items[deckPos];
+  var showPinyin = $("#optPinyin").checked;
+  var frontLang = S.base === "zh" ? "es" : "zh";   // si tu base es el chino, la cara visible es el español
+
+  $("#deckPos").textContent = t("learn.pos", { i: deckPos + 1, n: items.length, b: peek(it.id).box, m: MAX_BOX });
+
+  var h = "<div class='tagrow'><span class='tag'>" + esc(tagName(it.tag)) + "</span>" +
+          spkBtn(it.zh, "zh", "中文") + spkBtn(it.en, "en", "EN") + spkBtn(it.es, "es", "ES") + "</div>";
+  h += "<p class='hanzi'>" + esc(it[frontLang]) + "</p>";
+  if (frontLang === "zh" && showPinyin) h += "<p class='pinyin'>" + esc(it.py) + "</p>";
+
+  if (!revealed) {
+    h += "<p class='sub' style='margin-top:22px'>" + t("learn.front") + "</p>";
+  } else {
+    h += "<div class='tri'>";
+    h += "<div class='row'><span class='flag'>中文</span><span class='val'>" + esc(it.zh) +
+         " <em style='font-style:normal;color:var(--accent2);font-size:15px'>" + esc(it.py) + "</em></span></div>";
+    h += "<div class='row'><span class='flag'>EN</span><span class='val'>" + esc(it.en) + "</span></div>";
+    h += "<div class='row'><span class='flag'>ES</span><span class='val'>" + esc(it.es) + "</span></div>";
+    h += "</div>";
+    h += mnemoBox(it.mn);
+    h += "<div class='example'>";
+    h += "<div class='ez'>" + esc(it.ex.zh) + " " + spkBtn(it.ex.zh, "zh") + "</div>";
+    h += "<div class='ep'>" + esc(it.ex.py) + "</div>";
+    h += "<div class='ee'>EN · " + esc(it.ex.en) + "</div>";
+    h += "<div class='es'>ES · " + esc(it.ex.es) + "</div>";
+    h += "</div>";
+  }
+  $("#card").innerHTML = h;
+
+  $("#cardActions").innerHTML = revealed
+    ? "<button class='btn bad' data-g='0'>" + t("learn.g0") + "</button>" +
+      "<button class='btn mid' data-g='1'>" + t("learn.g1") + "</button>" +
+      "<button class='btn ok'  data-g='2'>" + t("learn.g2") + "</button>"
+    : "<button class='btn primary' id='bReveal'>" + t("learn.show") + "</button>" +
+      "<button class='btn ghost' id='bSkip'>" + t("learn.skip") + "</button>";
+
+  if ($("#optAudio").checked) speak(it[frontLang], frontLang);
+
+  wireSpeak();
+  if ($("#bReveal")) $("#bReveal").onclick = function () { revealed = true; renderLearn(); };
+  if ($("#bSkip")) $("#bSkip").onclick = function () { deckPos++; revealed = false; renderLearn(); };
+  all("#cardActions [data-g]").forEach(function (b) {
+    b.onclick = function () { grade(it.id, +b.dataset.g); deckPos++; revealed = false; renderLearn(); paintLevels(); };
+  });
+}
+
+/* ---------- vista: REPASAR ---------- */
+var revQueue = null, revRevealed = false;
+function renderReview() {
+  var body = $("#reviewBody");
+  if (revQueue === null) revQueue = shuffle(dueList());
+  revQueue = revQueue.filter(function (it) { var c = S.cards[it.id]; return c && c.due <= today(); });
+
+  if (!revQueue.length) {
+    var seen = Object.keys(S.cards).length;
+    body.innerHTML = "<div class='panel'><div class='empty'><span class='big'>✅</span>" +
+      (seen ? "<b>" + t("rev.doneTitle") + "</b><p class='sub' style='margin-top:8px'>" + t("rev.doneBody", { n: seen }) + "</p>"
+            : "<b>" + t("rev.newTitle") + "</b><p class='sub' style='margin-top:8px'>" + t("rev.newBody") + "</p>") +
+      "</div></div>";
+    return;
+  }
+  var it = revQueue[0];
+  var h = "<div class='panel'><p class='sub'>" + t("rev.pending", { n: revQueue.length, l: it.level }) + "</p>";
+  h += "<p class='hanzi'>" + esc(it.zh) + "</p>";
+  if (revRevealed) {
+    h += "<p class='pinyin'>" + esc(it.py) + "</p>";
+    h += "<div class='tri'><div class='row'><span class='flag'>EN</span><span class='val'>" + esc(it.en) + "</span></div>" +
+         "<div class='row'><span class='flag'>ES</span><span class='val'>" + esc(it.es) + "</span></div></div>";
+    h += mnemoBox(it.mn);
+    h += "<div class='actions'><button class='btn bad' data-rg='0'>" + t("learn.g0") + "</button>" +
+         "<button class='btn mid' data-rg='1'>" + t("learn.g1") + "</button>" +
+         "<button class='btn ok' data-rg='2'>" + t("learn.g2") + "</button></div>";
+  } else {
+    h += "<div class='actions'><button class='btn primary' id='rReveal'>" + t("rev.show") + "</button>" +
+         "<button class='btn ghost spk' data-say='" + esc(it.zh) + "' data-lang='zh'>" + t("rev.listen") + "</button></div>";
+  }
+  body.innerHTML = h + "</div>";
+
+  wireSpeak(body);
+  if ($("#rReveal")) $("#rReveal").onclick = function () { revRevealed = true; renderReview(); };
+  all("[data-rg]", body).forEach(function (b) {
+    b.onclick = function () { grade(it.id, +b.dataset.rg); revQueue.shift(); revRevealed = false; renderReview(); paintLevels(); };
+  });
+}
+
+/* ---------- vista: QUIZ ---------- */
+var quiz = null;
+function buildQuiz(lvId) {
+  var pool = level(lvId).items;
+  var chosen = pick(pool, Math.min(QUIZ_LEN, pool.length));
+  var dirs = DIRS[S.base] || DIRS.es;
+  var distract = ALL.filter(function (x) { return x.level <= Math.max(lvId, S.unlocked); });
+  if (distract.length < 6) distract = ALL;
+
+  var qs = chosen.map(function (it, i) {
+    var d = dirs[i % dirs.length], from = d[0], to = d[1];
+    var wrong = shuffle(distract.filter(function (x) { return x.id !== it.id && x[to] !== it[to]; })).slice(0, 3);
+    return {
+      id: it.id, item: it, from: from, to: to,
+      stem: to === "py" ? t("quiz.pinyinQ") : t("quiz.translate") + ": " + langName(from) + " → " + langName(to),
+      big: it[from],
+      small: (from === "zh" && to !== "py") ? it.py : "",
+      answer: it[to],
+      opts: shuffle([it[to]].concat(wrong.map(function (w) { return w[to]; })))
+    };
+  });
+  return { lv: lvId, qs: shuffle(qs), i: 0, right: 0, answered: false, wrongList: [] };
+}
+
+function renderQuiz() {
+  var body = $("#quizBody");
+  var lv = level(S.level);
+
+  if (!quiz) {
+    var last = S.quizzes.filter(function (q) { return q.level === S.level; }).slice(-1)[0];
+    body.innerHTML =
+      "<div class='panel'><h2>" + t("quiz.title", { code: lv.code, name: esc(lvName(lv)) }) + "</h2>" +
+      "<p class='sub'>" + t("quiz.intro", { n: QUIZ_LEN, p: PASS * 100 }) + "</p>" +
+      (last ? "<p class='sub'>" + t("quiz.last", { p: last.pct, d: last.date }) + "</p>" : "") +
+      "<button class='btn primary' id='qStart'>" + t("quiz.start") + "</button></div>";
+    $("#qStart").onclick = function () { quiz = buildQuiz(S.level); renderQuiz(); };
+    return;
+  }
+
+  if (quiz.i >= quiz.qs.length) {
+    var pct = Math.round(quiz.right / quiz.qs.length * 100);
+    var passed = pct >= PASS * 100;
+    S.quizzes.push({ level: quiz.lv, score: quiz.right, total: quiz.qs.length, pct: pct, date: today() });
+    S.xp += quiz.right * 15;
+    if (passed && quiz.lv === S.unlocked && S.unlocked < LEVELS.length) S.unlocked = quiz.lv + 1;
+    markStudiedToday(); save(); paintHeader(); paintLevels();
+
+    var h = "<div class='panel'><div class='scorewrap'><div class='score'>" + pct + "%</div>" +
+      "<p class='sub'>" + t("quiz.results", { r: quiz.right, n: quiz.qs.length }) + "</p>" +
+      "<span class='pill " + (passed ? "pass'>" + t("quiz.pass") : "fail'>" + t("quiz.fail")) + "</span></div>";
+    if (passed && quiz.lv < LEVELS.length) {
+      var nx = level(quiz.lv + 1);
+      h += "<p class='sub' style='text-align:center'>" + t("quiz.unlocked", { code: nx.code, name: esc(lvName(nx)) }) + "</p>";
+    }
+    if (quiz.wrongList.length) {
+      h += "<h3>" + t("quiz.toReview") + "</h3>";
+      quiz.wrongList.forEach(function (it) {
+        h += "<div class='res'><div class='rh'><span class='rt'>" + esc(it.zh) + " · " + esc(it.py) + "</span>" +
+             "<span class='lang'>" + esc(it.es) + " / " + esc(it.en) + "</span></div><p>" + esc(it.mn) + "</p></div>";
+      });
+    }
+    h += "<div class='actions'><button class='btn primary' id='qAgain'>" + t("quiz.again") + "</button>" +
+         "<button class='btn ghost' id='qClose'>" + t("quiz.close") + "</button></div></div>";
+    body.innerHTML = h;
+    $("#qAgain").onclick = function () { quiz = buildQuiz(S.level); renderQuiz(); };
+    $("#qClose").onclick = function () { quiz = null; renderQuiz(); };
+    return;
+  }
+
+  var q = quiz.qs[quiz.i];
+  var bar = quiz.i / quiz.qs.length * 100;
+  var big = "<div class='panel'><div class='qprog'><i style='width:" + bar + "%'></i></div>";
+  big += "<p class='qstem'>" + t("quiz.qnum", { i: quiz.i + 1, n: quiz.qs.length }) + " · " + q.stem + "</p>";
+  big += "<p class='" + (q.from === "zh" ? "qbig" : "qmid") + "'>" + esc(q.big) + " " + spkBtn(q.big, q.from) + "</p>";
+  if (q.small) big += "<p class='pinyin'>" + esc(q.small) + "</p>";
+  big += "<div class='opts'>";
+  q.opts.forEach(function (o) { big += "<button class='opt' data-o=\"" + esc(o) + "\">" + esc(o) + "</button>"; });
+  big += "</div><div id='qFeed'></div></div>";
+  body.innerHTML = big;
+
+  wireSpeak(body);
+  all(".opt", body).forEach(function (b) {
+    b.onclick = function () {
+      if (quiz.answered) return;
+      quiz.answered = true;
+      var good = b.dataset.o === q.answer;
+      all(".opt", body).forEach(function (x) {
+        x.disabled = true;
+        if (x.dataset.o === q.answer) x.classList.add("right");
+        else if (x === b) x.classList.add("wrong");
+      });
+      var c = card(q.id); c.seen++;
+      if (good) { quiz.right++; c.ok++; c.box = Math.min(MAX_BOX, c.box + 1); }
+      else { c.bad++; c.box = 0; quiz.wrongList.push(q.item); }
+      c.due = addDays(INTERVALS[c.box]);
+      save();
+      $("#qFeed").innerHTML = "<div class='feedback'>" +
+        (good ? t("quiz.correct") : t("quiz.wrong") + esc(q.answer)) + mnemoBox(q.item.mn, true) +
+        "<div class='actions'><button class='btn primary' id='qNext'>" + t("quiz.next") + "</button></div></div>";
+      $("#qNext").onclick = function () { quiz.i++; quiz.answered = false; renderQuiz(); };
+    };
+  });
+}
+
+/* ---------- vista: RECURSOS ---------- */
+function renderRes() {
+  var lv = level(S.level);
+  var list = RES[S.level] || [];
+  var h = "<div class='panel'><h2>" + t("res.title", { code: lv.code, name: esc(lvName(lv)) }) + "</h2>" +
+          "<p class='sub'>" + t("res.sub") + "</p>";
+  list.forEach(function (r) {
+    h += "<div class='res'><div class='rh'><span class='kind " + esc(r.type) + "'>" + esc(resType(r.type)) + "</span>" +
+         "<span class='rt'>" + esc(r.title) + "</span><span class='lang'>" + esc(r.lang) + "</span></div>" +
+         "<p>" + esc(resWhy(r)) + "</p>" +
+         "<a href='" + esc(r.url) + "' target='_blank' rel='noopener noreferrer'>" + t("res.open") + "</a></div>";
+  });
+  h += "</div><div class='panel'><h2>" + t("res.howTitle") + "</h2><p class='sub'>" + t("res.howSub") + "</p>" +
+       "<ol style='margin:0;padding-left:20px;font-size:14px;line-height:1.9'>" +
+       "<li>" + t("res.step1") + "</li><li>" + t("res.step2") + "</li>" +
+       "<li>" + t("res.step3") + "</li><li>" + t("res.step4") + "</li></ol></div>";
+  $("#resBody").innerHTML = h;
+}
+
+/* ---------- vista: PROGRESO ---------- */
+function renderProg() {
+  var seen = Object.keys(S.cards).length;
+  var learned = Object.keys(S.cards).filter(function (k) { return S.cards[k].box >= 4; }).length;
+
+  var h = "<div class='panel'><h2>" + t("prog.title") + "</h2><div class='kpis'>" +
+    "<div class='kpi'><b>" + seen + "</b><span>" + t("prog.seen") + "</span></div>" +
+    "<div class='kpi'><b>" + learned + "</b><span>" + t("prog.mastered") + "</span></div>" +
+    "<div class='kpi'><b>" + ALL.length + "</b><span>" + t("prog.total") + "</span></div>" +
+    "<div class='kpi'><b>" + dueList().length + "</b><span>" + t("prog.due") + "</span></div>" +
+    "<div class='kpi'><b>" + S.xp + "</b><span>" + t("prog.xp") + "</span></div>" +
+    "<div class='kpi'><b>" + (S.streak.count || 0) + "</b><span>" + t("prog.streak") + "</span></div></div>";
+
+  h += "<h3>" + t("prog.byLevel") + "</h3><div class='bars'>";
+  LEVELS.forEach(function (lv) {
+    var m = Math.round(mastery(lv.id) * 100);
+    h += "<div class='barrow'><span>" + lv.code + " " + esc(lvName(lv)) + "</span>" +
+         "<span class='bar'><i style='width:" + m + "%'></i></span>" +
+         "<span class='barnum'>" + (lv.id > S.unlocked ? "🔒" : m + "%") + "</span></div>";
+  });
+  h += "</div></div>";
+
+  if (S.quizzes.length) {
+    h += "<div class='panel'><h2>" + t("prog.history") + "</h2><table class='hist'><tr><th>" +
+         t("prog.thDate") + "</th><th>" + t("prog.thLevel") + "</th><th>" + t("prog.thResult") + "</th><th></th></tr>";
+    S.quizzes.slice().reverse().slice(0, 15).forEach(function (q) {
+      h += "<tr><td>" + q.date + "</td><td>" + level(q.level).code + "</td><td>" + q.score + "/" + q.total + "</td>" +
+           "<td><span class='pill " + (q.pct >= PASS * 100 ? "pass'>" : "fail'>") + q.pct + "%</span></td></tr>";
+    });
+    h += "</table></div>";
+  }
+
+  h += "<div class='panel'><h2>" + t("prog.backup") + "</h2><p class='sub'>" + t("prog.backupSub") + "</p>" +
+    "<div class='actions'><button class='btn' id='pExport'>" + t("prog.export") + "</button>" +
+    "<button class='btn' id='pImport'>" + t("prog.import") + "</button>" +
+    "<button class='btn bad ghost' id='pReset'>" + t("prog.reset") + "</button></div>" +
+    "<input type='file' id='pFile' accept='.json' style='display:none'></div>";
+
+  $("#progBody").innerHTML = h;
+
+  $("#pExport").onclick = function () {
+    var json = JSON.stringify(S, null, 2);
+    var name = "zh-en-sp-" + today() + ".json";
+
+    // Publicada en claude.ai el visor media las descargas; en local (file:// o
+    // cualquier hosting estático) no existe window.claude y se usa un enlace normal.
+    function fallback() {
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+      a.download = name;
+      a.click();
+    }
+    if (!(window.claude && typeof window.claude.use === "function")) return fallback();
+
+    window.claude.use("downloads").then(function (dl) {
+      if (!dl) return fallback();
+      return dl.save({ filename: name, data: json })["catch"](function (err) {
+        if (!err || err.code !== "declined") alert(t("prog.exportFail"));
+      });
+    })["catch"](fallback);
+  };
+  $("#pImport").onclick = function () { $("#pFile").click(); };
+  $("#pFile").onchange = function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    var r = new FileReader();
+    r.onload = function () {
+      try {
+        var d = JSON.parse(r.result);
+        if (!d || typeof d !== "object" || !("cards" in d)) throw 0;
+        S = d; var fr = fresh(); for (var k in fr) if (!(k in S)) S[k] = fr[k];
+        if (!I.ui[S.base]) S.base = "es";
+        save(); boot(); alert(t("prog.imported"));
+      } catch (err) { alert(t("prog.badFile")); }
+    };
+    r.readAsText(f);
+  };
+  $("#pReset").onclick = function () {
+    if (confirm(t("prog.confirmReset"))) { var b = S.base; S = fresh(); S.base = b; save(); boot(); }
+  };
+}
+
+/* ---------- router ---------- */
+var view = "learn";
+function render() {
+  if (view === "learn") renderLearn();
+  else if (view === "review") renderReview();
+  else if (view === "quiz") renderQuiz();
+  else if (view === "res") renderRes();
+  else renderProg();
+  paintHeader();
+}
+function renderAll() {               // redibuja las 5 vistas, no solo la activa
+  renderLearn(); renderReview(); renderQuiz(); renderRes(); renderProg(); paintHeader();
+}
+function boot() { applyChrome(); paintLevels(); renderAll(); }
+
+document.addEventListener("DOMContentLoaded", function () {
+  load();
+
+  all(".tab").forEach(function (tb) {
+    tb.onclick = function () {
+      all(".tab").forEach(function (x) { x.classList.remove("active"); });
+      all(".view").forEach(function (x) { x.classList.remove("active"); });
+      tb.classList.add("active");
+      view = tb.dataset.view;
+      $("#view-" + view).classList.add("active");
+      if (view === "review") { revQueue = null; revRevealed = false; }
+      if (view === "quiz") quiz = null;
+      render();
+    };
+  });
+
+  /* cambiar el idioma base recarga TODA la interfaz, no solo las tarjetas */
+  $("#baseLang").onchange = function () {
+    S.base = this.value;
+    revealed = false; revQueue = null; revRevealed = false; quiz = null;
+    save(); boot();                 // boot() -> applyChrome + renderAll: toda la app cambia de idioma
+  };
+  $("#optPinyin").onchange = renderLearn;
+
+  document.addEventListener("keydown", function (e) {
+    if (view !== "learn") return;
+    if (e.code === "Space") { e.preventDefault(); if (!revealed) { revealed = true; renderLearn(); } }
+    if (revealed && ["1", "2", "3"].indexOf(e.key) >= 0) {
+      grade(deck()[deckPos].id, +e.key - 1);
+      deckPos++; revealed = false; renderLearn(); paintLevels();
+    }
+  });
+
+  boot();
+  save();
+});
+
+})();
+
+</script>
+</body>
+</html>
