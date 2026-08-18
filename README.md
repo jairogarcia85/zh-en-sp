@@ -106,18 +106,19 @@ Privada hasta que uses *Compartir* en la propia página. Para actualizarla:
 2. Arrastra la carpeta `dist/`
 3. Te da una URL pública al instante (`nombre-random.netlify.app`)
 
-### Opción C — GitHub Pages (gratis y permanente)
+### Opción C — GitHub Pages (activa)
+
+- **Sitio:** https://jairogarcia85.github.io/zh-en-sp/
+- **Repo:** https://github.com/jairogarcia85/zh-en-sp
+
+Para publicar cambios basta con:
 
 ```bash
-git init -b main
-git add .
-git commit -m "Tutor trilingüe ZH-EN-SP"
-gh repo create zh-en-sp --public --source=. --push
+git add -A && git commit -m "tu mensaje" && git push
 ```
 
-Luego en GitHub: **Settings → Pages → Source: main / (root)**.
-Queda en `https://TU-USUARIO.github.io/zh-en-sp/` en un par de minutos.
-Como todo es relativo, funciona sin tocar nada; cada `git push` actualiza el sitio.
+El sitio se reconstruye solo en ~1 minuto. Si tocas el vocabulario o la interfaz,
+corre antes `python3 build.py` para que `dist/` (Netlify y el Artifact) quede al día.
 
 ### Ojo con el progreso al cambiar de dirección
 
