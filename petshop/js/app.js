@@ -14,11 +14,12 @@
   PRODUCTS.forEach(function (p) { byId[p.id] = p; });
 
   // ---------- estado ----------
-  var state = { lang: load(LANG_KEY, null) || guessLang(), pet: "all", type: "all", q: "", sort: "pop" };
+  // Vietnamita por defecto; solo cambia si el visitante eligió EN antes en este navegador.
+  var savedLang = load(LANG_KEY, null);
+  var state = { lang: I18N[savedLang] ? savedLang : "vi", pet: "all", type: "all", q: "", sort: "pop" };
   var cart = load(CART_KEY, {});        // { productId: qty }
   Object.keys(cart).forEach(function (id) { if (!byId[id] || !(cart[id] > 0)) delete cart[id]; });
 
-  function guessLang() { return (navigator.language || "").toLowerCase().indexOf("vi") === 0 ? "vi" : "en"; }
   function load(k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
   function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 

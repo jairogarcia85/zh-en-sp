@@ -1,7 +1,7 @@
 # 🐾 Amy's Pets — e-commerce de productos para mascotas (VI / EN)
 
-Tienda sencilla: catálogo, carrito y **pedido por Zalo / WhatsApp con pago contra entrega**. Sin pasarela de pago. Está en **vietnamita** (por defecto
-si el navegador está en vietnamita) y en **inglés**. Se cambia con el botón VI / EN.
+Tienda sencilla: catálogo, carrito y **pedido por Zalo / WhatsApp con pago contra entrega**. Sin pasarela de pago. Está en **vietnamita** (idioma por
+defecto) y en **inglés**. Se cambia con el botón VI / EN.
 
 ## Cómo abrirla
 
