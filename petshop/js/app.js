@@ -4,9 +4,9 @@
   var CFG = window.SHOP_CONFIG || {};
   var FREE_SHIP = CFG.freeShipFrom || 500000;   // VND
   var SHIP_FEE = CFG.shipFee || 0;              // VND
-  var CART_KEY = "mochipet.cart";
-  var LANG_KEY = "mochipet.lang";
-  var CUSTOMER_KEY = "mochipet.customer";
+  var CART_KEY = "amyspets.cart";
+  var LANG_KEY = "amyspets.lang";
+  var CUSTOMER_KEY = "amyspets.customer";
   var PET_IMG = { dog: "img/pet-dog.jpg", cat: "img/pet-cat.jpg", small: "img/pet-small.jpg", fish: "img/pet-fish.jpg", bird: "img/pet-bird.jpg" };
 
   var $ = function (s) { return document.querySelector(s); };
@@ -177,7 +177,7 @@
   }
   function newCode() {
     var d = new Date(), p = function (n) { return String(n).padStart(2, "0"); };
-    return "MP" + String(d.getFullYear()).slice(2) + p(d.getMonth() + 1) + p(d.getDate()) + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
+    return "AP" + String(d.getFullYear()).slice(2) + p(d.getMonth() + 1) + p(d.getDate()) + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
   }
   function orderText(code) {
     var t = T(), l = state.lang, sub = subtotal(), ship = shipping();
@@ -211,8 +211,10 @@
     if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text).then(function () { return true; }, fallback);
     return fallback();
   }
-  function sendOrder(channel) {
-    if (!validate()) { renderCart(); var bad = document.querySelector(".field.has-error input, .field.has-error textarea"); if (bad) bad.focus(); return; }
+  // Los botones de envío son enlaces <a> reales: así abren Zalo/WhatsApp también donde
+  // window.open está bloqueado. Si el formulario no es válido se cancela la navegación.
+  function sendOrder(channel, link, ev) {
+    if (!validate()) { ev.preventDefault(); renderCart(); var bad = document.querySelector(".field.has-error input, .field.has-error textarea"); if (bad) bad.focus(); return; }
     save(CUSTOMER_KEY, customer);
     var code = order && order.code ? order.code : newCode();
     var text = orderText(code);
@@ -221,10 +223,8 @@
       order.copied = ok;
       if (ok) { toast(T().zaloCopied); if (view === "done") renderCart(); }
     });
-    var w = window.open(channelUrl(channel, text), "_blank");
-    if (w) { try { w.opener = null; } catch (e) {} }
-    view = "done"; renderCart();
-    if (!w) toast(T().popupBlocked);
+    link.href = channelUrl(channel, text);          // el navegador sigue este enlace tras el clic
+    setTimeout(function () { view = "done"; renderCart(); }, 0);
   }
 
   function field(f, label, type, extra) {
@@ -266,8 +266,8 @@
     $("#cartFoot").innerHTML = totalsHtml() +
       '<p class="send-label">' + t.sendVia + "</p>" +
       '<div class="send">' +
-        '<button type="button" class="btn btn--zalo" data-send="zalo"><span class="send__ico" aria-hidden="true">Z</span> Zalo</button>' +
-        '<button type="button" class="btn btn--wa" data-send="wa"><span class="send__ico" aria-hidden="true">✆</span> WhatsApp</button>' +
+        '<a class="btn btn--zalo" data-send="zalo" href="' + esc(channelUrl("zalo", "")) + '" target="_blank" rel="noopener"><span class="send__ico" aria-hidden="true">Z</span> Zalo</a>' +
+        '<a class="btn btn--wa" data-send="wa" href="' + esc(channelUrl("wa", "")) + '" target="_blank" rel="noopener"><span class="send__ico" aria-hidden="true">✆</span> WhatsApp</a>' +
       "</div>";
   }
 
@@ -361,7 +361,12 @@
     else if ("close" in d) closeProduct();
     else if (d.q) setQty(d.q, cart[d.q] + Number(d.d));
     else if (d.rm) setQty(d.rm, 0);
-    else if ("empty" in d) { if (confirm(T().confirmEmpty)) { cart = {}; commit(); } }
+    else if ("empty" in d) {
+      // confirmación en dos toques, sin confirm() (no funciona en todos los navegadores/vistas)
+      if (el.dataset.armed) { cart = {}; commit(); }
+      else { el.dataset.armed = "1"; el.textContent = T().confirmEmpty; el.classList.add("is-armed");
+             setTimeout(function () { if (el.isConnected) { delete el.dataset.armed; el.textContent = T().emptyCart; el.classList.remove("is-armed"); } }, 3000); }
+    }
     else if ("closeCart" in d) closeCart();
     else if (d.view) {
       if (d.view === "checkout" && view === "cart") order = null;   // pedido nuevo → código nuevo
@@ -369,7 +374,7 @@
       var first = d.view === "checkout" ? $("#f-name") : null; if (first && !customer.name) first.focus();
       $("#cartItems").scrollTop = 0;
     }
-    else if (d.send) sendOrder(d.send);
+    else if (d.send) sendOrder(d.send, el, e);
     else if ("copy" in d) copyText(order.text).then(function (ok) { if (ok) { el.textContent = T().copied; setTimeout(function () { el.textContent = T().copy; }, 1500); } else { $("#orderText").select(); } });
     else if ("finish" in d) { cart = {}; order = null; view = "cart"; commit(); closeCart(); }
   });

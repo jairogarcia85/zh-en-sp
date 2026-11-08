@@ -12,7 +12,9 @@
   --new: #059669;
   --radius: 14px;
   --shadow: 0 6px 24px rgba(31, 36, 48, .08);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-display: "Baloo 2", "Be Vietnam Pro", system-ui, sans-serif;
+  font-family: var(--font-body);
   color: var(--ink);
 }
 * { box-sizing: border-box; }
@@ -21,7 +23,7 @@ body { margin: 0; background: var(--bg); line-height: 1.5; }
 body.no-scroll { overflow: hidden; }
 img { display: block; max-width: 100%; }
 button { font: inherit; color: inherit; cursor: pointer; }
-h1, h2, h3 { line-height: 1.2; margin: 0 0 .5em; }
+h1, h2, h3 { line-height: 1.15; margin: 0 0 .5em; font-family: var(--font-display); font-weight: 800; text-wrap: balance; }
 h2 { font-size: 1.5rem; }
 .wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
 .muted { color: var(--muted); }
@@ -29,9 +31,9 @@ h2 { font-size: 1.5rem; }
 
 /* barra superior y header */
 .announce { background: var(--ink); color: #fff; text-align: center; font-size: .85rem; padding: 7px 16px; }
-.header { position: sticky; top: 0; z-index: 20; background: rgba(255, 255, 255, .96); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: rgba(255, 255, 255, .96); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
 .header__row { display: flex; align-items: center; gap: 14px; height: 68px; }
-.logo { font-weight: 800; font-size: 1.35rem; text-decoration: none; color: var(--ink); white-space: nowrap; margin: 0; }
+.logo { font-family: var(--font-display); font-weight: 800; font-size: 1.55rem; line-height: 1; text-decoration: none; color: var(--ink); white-space: nowrap; margin: 0; }
 .logo span { color: var(--brand); }
 .search { flex: 1; position: relative; max-width: 560px; }
 .search__icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: .9rem; opacity: .6; }
@@ -230,3 +232,9 @@ body.no-scroll .toast { bottom: auto; top: 16px; transform: translate(-50%, -200
 body.no-scroll .toast.is-on { transform: translate(-50%, 0); }
 .done__icon--wa { background: #25d366; }
 .done__icon--zalo { background: #0068ff; }
+
+.logo__mark { font-size: .85em; }
+.link.is-armed { color: var(--sale); font-weight: 700; }
+.card__name, .modal__info h2, .drawer__head h2 { font-family: var(--font-display); }
+.drawer__foot { padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }

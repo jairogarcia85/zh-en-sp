@@ -51,7 +51,7 @@ US$466 millones (2025), con crecimiento del 15–20% anual. Aún hay mucho espac
 
 ## Patrones que todas comparten (y que ya aplicamos)
 
-| Patrón | ¿En Mochi Pet? |
+| Patrón | ¿En Amy's Pets? |
 |---|---|
 | Barra superior con el aviso de envío gratis | ✅ |
 | Buscador grande en el encabezado | ✅ (encuentra con y sin acentos vietnamitas) |

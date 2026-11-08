@@ -1,4 +1,4 @@
-# 🐾 Mochi Pet — e-commerce de productos para mascotas (VI / EN)
+# 🐾 Amy's Pets — e-commerce de productos para mascotas (VI / EN)
 
 Tienda sencilla: catálogo, carrito y **pedido por Zalo / WhatsApp con pago contra entrega**. Sin pasarela de pago. Está en **vietnamita** (por defecto
 si el navegador está en vietnamita) y en **inglés**. Se cambia con el botón VI / EN.
@@ -43,7 +43,7 @@ Los números que vienen son de ejemplo y no funcionan.
    - **Zalo** abre el chat con tu número y **copia el pedido** al portapapeles. Zalo no permite
      llevar el texto ya escrito, así que el cliente lo pega y lo envía. Si el navegador no deja
      copiar, la pantalla se lo indica y tiene un botón "Copiar".
-4. El cliente ve un número de pedido (ej. `MP261108-CKRJ`) y el texto completo, por si necesita
+4. El cliente ve un número de pedido (ej. `AP261108-CKRJ`) y el texto completo, por si necesita
    reenviarlo. Al tocar "Ya lo envié" se vacía el carrito.
 
 El mensaje que te llega incluye el número de pedido, los productos con su código (`[P03]`), las
