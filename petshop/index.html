@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mochi Pet</title>
+  <meta name="description" content="Mochi Pet – pet supplies / đồ dùng cho thú cưng">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="announce" data-i18n="announce"></div>
+
+  <header class="header">
+    <div class="wrap header__row">
+      <a class="logo" href="#top" aria-label="Mochi Pet">🐾 <span>Mochi</span>Pet</a>
+      <label class="search">
+        <span class="search__icon" aria-hidden="true">🔍</span>
+        <input id="search" type="search" autocomplete="off" data-i18n-ph="searchPh">
+      </label>
+      <div class="lang" role="group" data-i18n-aria="langLabel">
+        <button type="button" data-lang="vi">VI</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+      <button type="button" class="cart-btn" id="openCart">
+        <span aria-hidden="true">🛒</span>
+        <span class="cart-btn__label" data-i18n="cart"></span>
+        <span class="cart-btn__count" id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <img src="img/hero.jpg" alt="" class="hero__img">
+      <div class="wrap hero__content">
+        <p class="hero__kicker" data-i18n="heroKicker"></p>
+        <h1 data-i18n="heroTitle"></h1>
+        <p data-i18n="heroText"></p>
+        <a class="btn btn--primary" href="#shop" data-i18n="heroCta"></a>
+      </div>
+    </section>
+
+    <section class="wrap perks" id="perks"></section>
+
+    <section class="wrap">
+      <h2 data-i18n="shopByPet"></h2>
+      <div class="pets" id="pets"></div>
+    </section>
+
+    <section class="wrap shop" id="shop">
+      <div class="shop__head">
+        <h2 data-i18n="products"></h2>
+        <span class="muted" id="resultCount"></span>
+      </div>
+      <div class="toolbar">
+        <div class="chips" id="typeChips" role="group" data-i18n-aria="category"></div>
+        <label class="sort">
+          <span data-i18n="sort"></span>
+          <select id="sort"></select>
+        </label>
+      </div>
+      <div class="grid" id="grid"></div>
+      <div class="empty" id="empty" hidden>
+        <p data-i18n="empty"></p>
+        <button type="button" class="btn" id="clearFilters" data-i18n="clear"></button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p class="logo">🐾 <span>Mochi</span>Pet</p>
+      <p data-i18n="footerAbout"></p>
+      <p class="muted" data-i18n="footerDemo"></p>
+    </div>
+  </footer>
+
+  <!-- Ficha de producto -->
+  <dialog class="modal" id="productModal">
+    <div class="modal__body" id="productBody"></div>
+  </dialog>
+
+  <!-- Carrito -->
+  <div class="overlay" id="overlay" hidden></div>
+  <aside class="drawer" id="drawer" aria-hidden="true" aria-labelledby="drawerTitle">
+    <div class="drawer__head">
+      <h2 id="drawerTitle" data-i18n="cart"></h2>
+      <button type="button" class="icon-btn" id="closeCart" data-i18n-aria="close">✕</button>
+    </div>
+    <div class="drawer__ship" id="shipBar"></div>
+    <div class="drawer__items" id="cartItems"></div>
+    <div class="drawer__foot" id="cartFoot"></div>
+  </aside>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
