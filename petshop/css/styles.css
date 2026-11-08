@@ -187,8 +187,46 @@ h2 { font-size: 1.5rem; }
   .card__name { font-size: .9rem; }
   .price { font-size: 1rem; }
   .card__body .btn { padding: 9px 10px; font-size: .85rem; }
-  .toolbar { flex-direction: column; align-items: stretch; }
-  .chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+  .toolbar { display: block; }
+  .chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; margin-bottom: 10px; }
   .chip { white-space: nowrap; }
   .modal__info { padding: 20px; }
 }
+
+/* ---------- pedido: formulario, contra entrega, Zalo / WhatsApp ---------- */
+.link--back { margin: 12px 0 4px; text-decoration: none; font-weight: 600; color: var(--ink); }
+.co { display: flex; flex-direction: column; gap: 12px; padding: 8px 0 16px; }
+.field label { display: block; font-size: .85rem; font-weight: 600; margin-bottom: 4px; }
+.field input, .field textarea { width: 100%; font: inherit; border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; background: #fff; }
+.field textarea { resize: vertical; }
+.field input:focus, .field textarea:focus { outline: none; border-color: var(--brand); }
+.field.has-error input, .field.has-error textarea { border-color: var(--sale); background: #fff5f6; }
+.field__err { color: var(--sale); font-size: .8rem; margin: 4px 0 0; }
+.pay { border: 0; padding: 0; margin: 4px 0 0; }
+.pay legend { font-size: .85rem; font-weight: 600; margin-bottom: 6px; padding: 0; }
+.pay__opt { display: flex; gap: 10px; align-items: flex-start; border: 2px solid var(--brand); background: var(--brand-soft); border-radius: 12px; padding: 12px; }
+.pay__opt input { margin-top: 4px; accent-color: var(--brand); }
+.pay__opt small { display: block; color: var(--muted); font-size: .8rem; margin-top: 2px; }
+.mini { background: #f8f8fa; border-radius: 12px; padding: 10px 12px; font-size: .85rem; }
+.mini__row { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; }
+.mini__row span:last-child { white-space: nowrap; font-weight: 600; }
+.send-label { margin: 0 0 8px; font-size: .85rem; font-weight: 600; text-align: center; }
+.send { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.send__ico { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #fff; font-size: .8rem; font-weight: 900; }
+.btn--zalo { background: #0068ff; border-color: #0068ff; color: #fff; }
+.btn--zalo:hover { background: #0055d4; border-color: #0055d4; }
+.btn--zalo .send__ico { color: #0068ff; }
+.btn--wa { background: #25d366; border-color: #25d366; color: #fff; }
+.btn--wa:hover { background: #1ebe5a; border-color: #1ebe5a; }
+.btn--wa .send__ico { color: #1ebe5a; }
+.done { text-align: center; padding: 20px 0; }
+.done__icon { width: 64px; height: 64px; margin: 0 auto 10px; border-radius: 50%; display: grid; place-items: center; font-size: 1.8rem; font-weight: 900; color: #fff; background: var(--brand); }
+.done__code { display: inline-block; background: var(--brand-soft); color: var(--brand-dark); font-weight: 800; padding: 6px 14px; border-radius: 999px; }
+.done__label { display: block; text-align: left; font-size: .85rem; font-weight: 600; margin: 14px 0 4px; }
+.done__text { width: 100%; font: .82rem/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; border: 1.5px solid var(--line); border-radius: 10px; padding: 10px; background: #f8f8fa; resize: vertical; }
+.done__row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+/* con el carrito abierto, el aviso va arriba para no tapar los botones */
+body.no-scroll .toast { bottom: auto; top: 16px; transform: translate(-50%, -200%); }
+body.no-scroll .toast.is-on { transform: translate(-50%, 0); }
+.done__icon--wa { background: #25d366; }
+.done__icon--zalo { background: #0068ff; }

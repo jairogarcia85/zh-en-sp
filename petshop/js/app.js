@@ -1,9 +1,12 @@
 (function () {
   "use strict";
 
-  var FREE_SHIP = 500000;               // VND
+  var CFG = window.SHOP_CONFIG || {};
+  var FREE_SHIP = CFG.freeShipFrom || 500000;   // VND
+  var SHIP_FEE = CFG.shipFee || 0;              // VND
   var CART_KEY = "mochipet.cart";
   var LANG_KEY = "mochipet.lang";
+  var CUSTOMER_KEY = "mochipet.customer";
   var PET_IMG = { dog: "img/pet-dog.jpg", cat: "img/pet-cat.jpg", small: "img/pet-small.jpg", fish: "img/pet-fish.jpg", bird: "img/pet-bird.jpg" };
 
   var $ = function (s) { return document.querySelector(s); };
@@ -152,9 +155,153 @@
   function setQty(id, q) { if (q <= 0) delete cart[id]; else cart[id] = Math.min(99, q); commit(); }
   function commit() { save(CART_KEY, cart); renderCart(); }
 
+  function shipping() { return subtotal() >= FREE_SHIP ? 0 : SHIP_FEE; }
+
+  // ---------- pedido (contra entrega por Zalo / WhatsApp) ----------
+  var view = "cart";                      // cart | checkout | done
+  var customer = load(CUSTOMER_KEY, {}) || {};
+  var FIELDS = ["name", "phone", "address", "city", "note"];
+  FIELDS.forEach(function (f) { if (typeof customer[f] !== "string") customer[f] = ""; });
+  var errors = {};
+  var order = null;                       // { code, channel, text }
+
+  function cleanPhone(s) { return s.replace(/[\s.\-()]/g, ""); }
+  function validPhone(s) { return /^(0|\+?84)(3|5|7|8|9)\d{8}$/.test(cleanPhone(s)); }
+  function validate() {
+    var t = T(); errors = {};
+    if (customer.name.trim().length < 2) errors.name = t.errName;
+    if (!validPhone(customer.phone)) errors.phone = t.errPhone;
+    if (customer.address.trim().length < 5) errors.address = t.errAddress;
+    if (customer.city.trim().length < 2) errors.city = t.errCity;
+    return !Object.keys(errors).length;
+  }
+  function newCode() {
+    var d = new Date(), p = function (n) { return String(n).padStart(2, "0"); };
+    return "MP" + String(d.getFullYear()).slice(2) + p(d.getMonth() + 1) + p(d.getDate()) + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
+  }
+  function orderText(code) {
+    var t = T(), l = state.lang, sub = subtotal(), ship = shipping();
+    var lines = [t.msgHello, "", t.msgCode + ": " + code, ""];
+    Object.keys(cart).forEach(function (id, i) {
+      var p = byId[id];
+      lines.push((i + 1) + ". " + p.name[l] + " [" + id.toUpperCase() + "] × " + cart[id] + " = " + money(p.price * cart[id]));
+    });
+    lines.push("", t.subtotal + ": " + money(sub),
+      t.shipping + ": " + (ship ? money(ship) : t.shipFree),
+      t.total + ": " + money(sub + ship),
+      t.msgPay, "",
+      t.msgName + ": " + customer.name.trim(),
+      t.msgPhone + ": " + cleanPhone(customer.phone),
+      t.msgAddress + ": " + customer.address.trim() + ", " + customer.city.trim());
+    if (customer.note.trim()) lines.push(t.msgNote + ": " + customer.note.trim());
+    return lines.join("\n");
+  }
+  function channelUrl(channel, text) {
+    return channel === "wa"
+      ? "https://wa.me/" + String(CFG.whatsappPhone || "").replace(/\D/g, "") + "?text=" + encodeURIComponent(text)
+      : "https://zalo.me/" + String(CFG.zaloPhone || "").replace(/\D/g, "");
+  }
+  function copyText(text) {
+    var fallback = function () {
+      var ta = document.createElement("textarea"); ta.value = text; ta.setAttribute("readonly", "");
+      ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select();
+      var ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta); return Promise.resolve(ok);
+    };
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text).then(function () { return true; }, fallback);
+    return fallback();
+  }
+  function sendOrder(channel) {
+    if (!validate()) { renderCart(); var bad = document.querySelector(".field.has-error input, .field.has-error textarea"); if (bad) bad.focus(); return; }
+    save(CUSTOMER_KEY, customer);
+    var code = order && order.code ? order.code : newCode();
+    var text = orderText(code);
+    order = { code: code, channel: channel, text: text, copied: false };
+    if (channel === "zalo") copyText(text).then(function (ok) {
+      order.copied = ok;
+      if (ok) { toast(T().zaloCopied); if (view === "done") renderCart(); }
+    });
+    var w = window.open(channelUrl(channel, text), "_blank");
+    if (w) { try { w.opener = null; } catch (e) {} }
+    view = "done"; renderCart();
+    if (!w) toast(T().popupBlocked);
+  }
+
+  function field(f, label, type, extra) {
+    var err = errors[f];
+    var input = type === "textarea"
+      ? '<textarea id="f-' + f + '" data-field="' + f + '" rows="2" placeholder="' + esc(extra || "") + '">' + esc(customer[f]) + "</textarea>"
+      : '<input id="f-' + f + '" data-field="' + f + '" type="' + type + '" value="' + esc(customer[f]) + '"' + (extra || "") + (err ? ' aria-invalid="true" aria-describedby="e-' + f + '"' : "") + ">";
+    return '<div class="field' + (err ? " has-error" : "") + '"><label for="f-' + f + '">' + label + "</label>" + input +
+      (err ? '<p class="field__err" id="e-' + f + '">' + err + "</p>" : "") + "</div>";
+  }
+
+  function totalsHtml() {
+    var t = T(), sub = subtotal(), ship = shipping();
+    return '<div class="sum"><span>' + t.subtotal + "</span><span>" + money(sub) + "</span></div>" +
+      '<div class="sum"><span>' + t.shipping + "</span><span>" + (ship ? money(ship) : t.shipFree) + "</span></div>" +
+      '<div class="sum sum--total"><span>' + t.total + "</span><span>" + money(sub + ship) + "</span></div>";
+  }
+
+  function renderCheckout() {
+    var t = T(), l = state.lang;
+    $("#drawerTitle").textContent = t.coTitle;
+    $("#shipBar").innerHTML = '<button type="button" class="link link--back" data-view="cart">' + t.back + "</button>";
+    $("#cartItems").innerHTML =
+      '<form class="co" id="coForm" novalidate>' +
+        field("name", t.fName, "text", ' autocomplete="name"') +
+        field("phone", t.fPhone, "tel", ' autocomplete="tel" inputmode="tel" placeholder="0912 345 678"') +
+        field("address", t.fAddress, "text", ' autocomplete="street-address"') +
+        field("city", t.fCity, "text", ' autocomplete="address-level1" list="cities"') +
+        '<datalist id="cities"><option value="TP. Hồ Chí Minh"><option value="Hà Nội"><option value="Đà Nẵng"><option value="Hải Phòng"><option value="Cần Thơ"></datalist>' +
+        field("note", t.fNote, "textarea", t.notePh) +
+        '<fieldset class="pay"><legend>' + t.payTitle + "</legend>" +
+          '<label class="pay__opt"><input type="radio" name="pay" checked> <span><strong>💵 ' + t.cod + "</strong><small>" + t.codHint + "</small></span></label>" +
+        "</fieldset>" +
+        '<div class="mini">' + Object.keys(cart).map(function (id) {
+          var p = byId[id];
+          return '<div class="mini__row"><span>' + esc(p.name[l]) + " × " + cart[id] + "</span><span>" + money(p.price * cart[id]) + "</span></div>";
+        }).join("") + "</div>" +
+      "</form>";
+    $("#cartFoot").innerHTML = totalsHtml() +
+      '<p class="send-label">' + t.sendVia + "</p>" +
+      '<div class="send">' +
+        '<button type="button" class="btn btn--zalo" data-send="zalo"><span class="send__ico" aria-hidden="true">Z</span> Zalo</button>' +
+        '<button type="button" class="btn btn--wa" data-send="wa"><span class="send__ico" aria-hidden="true">✆</span> WhatsApp</button>' +
+      "</div>";
+  }
+
+  function renderDone() {
+    var t = T();
+    if (Object.keys(cart).length) order.text = orderText(order.code);   // sigue el idioma actual
+    $("#drawerTitle").textContent = t.doneTitle;
+    $("#shipBar").innerHTML = "";
+    $("#cartItems").innerHTML =
+      '<div class="done">' +
+        '<p class="done__icon done__icon--' + order.channel + '" aria-hidden="true">' + (order.channel === "wa" ? "✆" : "Z") + "</p>" +
+        "<p><strong>" + (order.channel === "wa" ? t.doneWa : order.copied ? t.doneZalo : t.doneZaloManual) + "</strong></p>" +
+        '<p class="done__code">' + t.doneCode(order.code) + "</p>" +
+        '<p class="muted">' + t.doneCall + "</p>" +
+        '<label class="done__label" for="orderText">' + t.orderText + "</label>" +
+        '<textarea id="orderText" class="done__text" readonly rows="10">' + esc(order.text) + "</textarea>" +
+        '<div class="done__row">' +
+          '<button type="button" class="btn" data-copy>' + t.copy + "</button>" +
+          '<a class="btn ' + (order.channel === "wa" ? "btn--wa" : "btn--zalo") + '" href="' + esc(channelUrl(order.channel, order.text)) + '" target="_blank" rel="noopener">' + t.openAgain + "</a>" +
+        "</div>" +
+      "</div>";
+    $("#cartFoot").innerHTML =
+      '<button type="button" class="btn btn--primary btn--block" data-finish>' + t.finish + "</button>" +
+      '<button type="button" class="link" data-view="checkout">' + t.edit + "</button>";
+  }
+
   function renderCart() {
     var t = T(), l = state.lang, ids = Object.keys(cart), sub = subtotal();
     $("#cartCount").textContent = cartCount();
+    if (!ids.length && view === "checkout") view = "cart";
+    if (view === "checkout") return renderCheckout();
+    if (view === "done" && order) return renderDone();
+    view = "cart";
+    $("#drawerTitle").textContent = t.cart;
 
     var pct = Math.min(100, Math.round(sub / FREE_SHIP * 100));
     $("#shipBar").innerHTML = ids.length ? '<p>' + (sub >= FREE_SHIP ? t.gotFree : t.toFree(money(FREE_SHIP - sub))) + '</p><div class="bar"><span style="width:' + pct + '%"></span></div>' : "";
@@ -172,10 +319,8 @@
     }).join("") : '<div class="drawer__empty"><p>🐶🛒</p><p>' + t.cartEmpty + '</p><button type="button" class="btn" data-close-cart>' + t.keepShopping + "</button></div>";
 
     $("#cartFoot").innerHTML = ids.length ?
-      '<div class="sum"><span>' + t.subtotal + "</span><span>" + money(sub) + "</span></div>" +
-      '<div class="sum"><span>' + t.shipping + "</span><span>" + (sub >= FREE_SHIP ? t.shipFree : t.shipFee) + "</span></div>" +
-      '<div class="sum sum--total"><span>' + t.total + "</span><span>" + money(sub) + "</span></div>" +
-      '<button type="button" class="btn btn--primary btn--block" disabled>' + t.checkout + "</button>" +
+      totalsHtml() +
+      '<button type="button" class="btn btn--primary btn--block" data-view="checkout">' + t.checkout + "</button>" +
       '<p class="muted small">' + t.checkoutNote + "</p>" +
       '<button type="button" class="link" data-empty>' + t.emptyCart + "</button>" : "";
   }
@@ -218,7 +363,23 @@
     else if (d.rm) setQty(d.rm, 0);
     else if ("empty" in d) { if (confirm(T().confirmEmpty)) { cart = {}; commit(); } }
     else if ("closeCart" in d) closeCart();
+    else if (d.view) {
+      if (d.view === "checkout" && view === "cart") order = null;   // pedido nuevo → código nuevo
+      view = d.view; errors = {}; renderCart();
+      var first = d.view === "checkout" ? $("#f-name") : null; if (first && !customer.name) first.focus();
+      $("#cartItems").scrollTop = 0;
+    }
+    else if (d.send) sendOrder(d.send);
+    else if ("copy" in d) copyText(order.text).then(function (ok) { if (ok) { el.textContent = T().copied; setTimeout(function () { el.textContent = T().copy; }, 1500); } else { $("#orderText").select(); } });
+    else if ("finish" in d) { cart = {}; order = null; view = "cart"; commit(); closeCart(); }
   });
+  // el formulario guarda lo que se escribe (no se pierde al cambiar de idioma)
+  document.addEventListener("input", function (e) {
+    var f = e.target.dataset && e.target.dataset.field; if (!f) return;
+    customer[f] = e.target.value;
+    if (errors[f]) { delete errors[f]; var box = e.target.closest(".field"); box.classList.remove("has-error"); var m = box.querySelector(".field__err"); if (m) m.remove(); e.target.removeAttribute("aria-invalid"); }
+  });
+  document.addEventListener("submit", function (e) { e.preventDefault(); });
   $("#openCart").addEventListener("click", openCart);
   $("#closeCart").addEventListener("click", closeCart);
   $("#overlay").addEventListener("click", closeCart);
